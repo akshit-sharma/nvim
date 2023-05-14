@@ -39,6 +39,9 @@ R = function(name)
 end
 
 local remote_url = 'https://github.com/akshit-sharma/nvim'
+local config_parent = vim.fn.stdpath('config')
+local config_root = 'nvim/'
+local config_path = config_parent..config_root
 
 local update_required = function(git_path, remote_url)
   return true
@@ -46,13 +49,12 @@ end
 
 local clone_or_update_repo = function()
   local fn = vim.fn
-  local config_path = fn.stdpath('config')
-  if fn.empty(fn.glob(config_path..'nvim')) > 0 or fn.empty(fn.glob(config_path..'nvim/init.lua')) > 0 then
+  local config_path = fn.stdpath('config')..location
+  if fn.empty(fn.glob(config_path)) > 0 or fn.empty(fn.glob(config_path..'init.lua')) > 0 then
     on_exit = function(j, return_val)
       vim.notify('cloned repo ('..return_val..')')
     end
-    COMMAND('git' {'clone', remote_url, config_path},
-      fn.stdpath(config_path), on_exit, false)
+    COMMAND('git' {'clone', remote_url, config_path}, config_parent, on_exit, false)
     return
   end
   if update_required(config_path..'nvim', remote_url) then
