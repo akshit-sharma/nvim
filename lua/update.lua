@@ -8,11 +8,17 @@ end
 local ok, plenary_job = pcall(require, "plenary_job")
 if not ok then
   COMMAND = function(commandName, commandArgs, workingDir, onExit, sync)
-    vim.notify("not functional")
-    return vim.fn.system({})
+    vim.notify("might not be functional, type is "..type(commandArgs))
+    cmdList = {}
+    table.insert(cmdList, commandName)
+    for key, arg in pairs(commandArgs) do
+      table.insert(cmdList, arg)
+    end
+    vim.fn.system(cmdList)
   end
 else
   COMMAND = function(commandName, commandArgs, workingDir, onExit, sync)
+    vim.notify("making job ")
     job = Job:new({
       command = commandName,
       args = commandArgs,
@@ -43,25 +49,27 @@ local config_parent = vim.fn.stdpath('config')
 local config_root = 'nvim/'
 local config_path = config_parent..config_root
 
-local update_required = function(git_path, remote_url)
-  return true
+local update_required = function(git_path, remote_url, update_cmd)
+  update_cmd()
 end
 
 local clone_or_update_repo = function()
   local fn = vim.fn
-  local config_path = fn.stdpath('config')..location
   if fn.empty(fn.glob(config_path)) > 0 or fn.empty(fn.glob(config_path..'init.lua')) > 0 then
     on_exit = function(j, return_val)
       vim.notify('cloned repo ('..return_val..')')
     end
-    COMMAND('git' {'clone', remote_url, config_path}, config_parent, on_exit, false)
+    COMMAND('git', {'clone', remote_url, config_path}, config_parent, on_exit, false)
     return
   end
-  if update_required(config_path..'nvim', remote_url) then
-    on_exit = function(j, return_val)
-      vim.notify('pulled repo ('..return_val..')')
-    end
-    COMMAND('git' {'pull', '-C', config_path},
-      fn.stdpath(config_path), on_exit, false)
+  on_update_exit = function(j, return_val)
+    vim.notify('pulled repo ('..return_val..')')
   end
+  local update_cmd = function()
+    COMMAND('git', {'pull', '-C', config_path}, config_path, on_update_exit, false)
+  end
+  update_required(config_path..'nvim', remote_url, update_cmd) 
 end
+
+clone_or_update_repo()
+
