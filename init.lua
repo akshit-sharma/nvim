@@ -1,1 +1,5 @@
 require('update')
+require('options')
+require('preinstall')
+require('plugins')
+require('postinstall')

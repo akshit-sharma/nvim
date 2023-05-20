@@ -8,7 +8,7 @@ end
 local ok, plenary_job = pcall(require, "plenary_job")
 if not ok then
   COMMAND = function(commandName, commandArgs, workingDir, onExit, sync)
-    vim.notify("might not be functional, type is "..type(commandArgs))
+--    vim.notify("might not be functional, type is "..type(commandArgs))
     cmdList = {}
     table.insert(cmdList, commandName)
     for key, arg in pairs(commandArgs) do
@@ -33,6 +33,11 @@ else
       job:start()
     end
   end
+end
+
+P = function(v)
+  print(vim.inspect(v))
+  return v
 end
 
 RELOAD = function(...)

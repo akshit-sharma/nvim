@@ -1,0 +1,1 @@
+require('preinstall.nvim-treesitter')
