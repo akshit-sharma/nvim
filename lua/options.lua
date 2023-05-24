@@ -18,10 +18,10 @@ vimopt.signcolumn = "yes"
 vimopt.cmdheight = 2
 
 vimopt.listchars = {
-    tab = "»·",
-    trail = "·",
-    extends = "↪",
-    precedes = "↩",
+  tab = "»·",
+  trail = "·",
+  extends = "↪",
+  precedes = "↩",
 }
 
 vimopt.background = "dark"
