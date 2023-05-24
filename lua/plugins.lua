@@ -25,6 +25,46 @@ packer.startup({function(use)
     end,
   }
 
+  use('liuchengxu/vista.vim')
+  use {
+    'simrat39/symbols-outline.nvim',
+    config = function()
+      require('symbols-outline').setup()
+    end,
+  }
+
+  use {
+    'nvim-telescope/telescope.nvim', tag = '0.1.1',
+    requires = { {'nvim-lua/plenary.nvim'} }
+  }
+  use ("nvim-telescope/telescope-file-browser.nvim")
+
+
+  use {
+    'VonHeikemen/lsp-zero.nvim',
+    branch = 'v2.x',
+    requires = {
+      -- LSP Support
+      {'neovim/nvim-lspconfig'},             -- Required
+      {                                      -- Optional
+      'williamboman/mason.nvim',
+      run = function()
+        pcall(vim.cmd, 'MasonUpdate')
+      end,
+    },
+    {'williamboman/mason-lspconfig.nvim'}, -- Optional
+
+    -- Autocompletion
+    {'hrsh7th/nvim-cmp'},     -- Required
+    {'hrsh7th/cmp-nvim-lsp'}, -- Required
+    {'L3MON4D3/LuaSnip'},     -- Required
+  }
+  }
+
+  use { 'wsdjeg/vim-fetch' }
+
+  use { 'ojroques/nvim-hardline' }
+
   if packer_bootstrap then
     R('packer').sync()
   end

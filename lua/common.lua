@@ -49,6 +49,7 @@ R = function(name)
   return require(name)
 end
 
+--vim.g.python3_host_prog = vim.env.HOME..'/venv/bin/python3'
 
 NOREMAP = { noremap = true }
 NOREMAP_SILENT = { noremap = true, silent = true }
