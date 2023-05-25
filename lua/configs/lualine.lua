@@ -1,4 +1,18 @@
 return function()
+  local ok, navic = pcall(require, 'nvim-navic')
+  if not ok then
+    vim.notify('lualine: navic not found', vim.log.levels.WARN)
+  end
+  local location = function()
+    return navic.get_location()
+  end
+  local available = function()
+    if ok then
+      return navic and navic.is_available()
+    else
+      return false
+    end
+  end
   require'lualine'.setup {
     options = {
       theme = 'onedark',
@@ -7,10 +21,9 @@ return function()
     },
     sections = {
       lualine_a = {
-        'filename'
+        {'branch', fmt = function(str) return (str ~= "main" and str or ' ') end },
       },
       lualine_b = {
-        {'branch', fmt = function(str) return (str ~= "main" and str or ' ') end },
         'diff',
       },
       lualine_c = {
@@ -20,7 +33,6 @@ return function()
       lualine_x = { 'diagnostic' },
       lualine_y = {
         { 'encoding', fmt = function(str) return (str ~= "utf-8" and str or "") end },
-        { 'filetype', icon_only = true, colored = true },
       },
       lualine_z = {
         'location',
@@ -30,10 +42,12 @@ return function()
     },
     winbar = {
       lualine_c = {
-        'navic',
-        color_correction = nil,
-        navic_opts = nil
-      }
+        { location, cond = available },
+      },
+      lualine_y = {
+        {'filetype', icon_only = true}
+      },
+      lualine_z = { 'filename' },
     }
   }
 end

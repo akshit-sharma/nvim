@@ -24,7 +24,10 @@ local packer = R('packer')
 packer.startup({function(use)
   use 'wbthomason/packer.nvim'
   use 'nvim-lua/plenary.nvim'
+  use { 'themercorp/themer.lua', config = config('themer'), }
   use 'ryanoasis/vim-devicons'
+  use { 'rcarriga/nvim-notify', config=config('notify'), run=run('notify')}
+  use { 'vigoux/notifier.nvim', config=config('notifier'), }
 
   use {
     'nvim-treesitter/nvim-treesitter',
@@ -33,14 +36,6 @@ packer.startup({function(use)
       ts_update()
     end,
     config = config('nvim-treesitter')
-  }
-
-  use('liuchengxu/vista.vim')
-  use {
-    'simrat39/symbols-outline.nvim',
-    config = function()
-      require('symbols-outline').setup()
-    end,
   }
 
   use {
@@ -60,7 +55,6 @@ packer.startup({function(use)
     run = run('telescope'),
   }
 
-  use { 'kosayoda/nvim-lightbulb' }
   use {
     'VonHeikemen/lsp-zero.nvim',
     branch = 'v2.x',
@@ -71,23 +65,42 @@ packer.startup({function(use)
       { 'williamboman/mason-lspconfig.nvim' }, -- Optional
 
       -- Autocompletion
-      {'hrsh7th/nvim-cmp'},     -- Required
-      {'hrsh7th/cmp-nvim-lsp'}, -- Required
-      {'L3MON4D3/LuaSnip'},     -- Required
+      { 'hrsh7th/nvim-cmp' },     -- Required
+      { 'hrsh7th/cmp-nvim-lsp' }, -- Required
+      { 'L3MON4D3/LuaSnip' },     -- Required
+
+      { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
+      { 'j-hui/fidget.nvim' },
+      { 'kosayoda/nvim-lightbulb' },
+      { 'ray-x/lsp_signature.nvim' },
+      { 'simrat39/symbols-outline.nvim', config = config('symbols-outline') },
+      { 'liuchengxu/vista.vim' },
     },
     run = run('lsp-zero'),
-    after = 'nvim-treesitter',
+  }
+
+  use {
+    'zbirenbaum/copilot.lua',
+    cmd = "Copilot",
+    event = 'InsertEnter',
+    config = config('zbirenbaum-copilot')
+  }
+  use {
+    'zbirenbaum/copilot-cmp',
+    after = { 'copilot.lua' },
+    config = config('copilot-cmp')
   }
 
   use { 'wsdjeg/vim-fetch' }
   use { 'stevearc/aerial.nvim', config = config('aerial'),  }
   use { 'SmiteshP/nvim-navic', requires = { 'neovim/nvim-lspconfig' } }
-  use { 
+  use {
     'nvim-lualine/lualine.nvim',
     config = config('lualine'),
     requires = { 'nvim-tree/nvim-web-devicons' },
+    after = { 'nvim-navic' },
   }
-  use ({ 'themercorp/themer.lua', config = config('themer'), })
+  --use { 'lervag/vimtex', config = config('vimtex') }
 
   if packer_bootstrap then
     R('packer').sync()
