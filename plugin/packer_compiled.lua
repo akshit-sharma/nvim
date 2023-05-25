@@ -74,66 +74,6 @@ end
 time([[try_loadstring definition]], false)
 time([[Defining packer_plugins]], true)
 _G.packer_plugins = {
-  LuaSnip = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/LuaSnip",
-    url = "https://github.com/L3MON4D3/LuaSnip"
-  },
-  ["aerial.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/aerial.nvim",
-    url = "https://github.com/stevearc/aerial.nvim"
-  },
-  ["cmp-nvim-lsp"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/cmp-nvim-lsp",
-    url = "https://github.com/hrsh7th/cmp-nvim-lsp"
-  },
-  ["lsp-zero.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/lsp-zero.nvim",
-    url = "https://github.com/VonHeikemen/lsp-zero.nvim"
-  },
-  ["lualine.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/lualine.nvim",
-    url = "https://github.com/nvim-lualine/lualine.nvim"
-  },
-  ["mason-lspconfig.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/mason-lspconfig.nvim",
-    url = "https://github.com/williamboman/mason-lspconfig.nvim"
-  },
-  ["mason.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/mason.nvim",
-    url = "https://github.com/williamboman/mason.nvim"
-  },
-  ["nvim-cmp"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/nvim-cmp",
-    url = "https://github.com/hrsh7th/nvim-cmp"
-  },
-  ["nvim-lspconfig"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/nvim-lspconfig",
-    url = "https://github.com/neovim/nvim-lspconfig"
-  },
-  ["nvim-navic"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/nvim-navic",
-    url = "https://github.com/SmiteshP/nvim-navic"
-  },
-  ["nvim-treesitter"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/nvim-treesitter",
-    url = "https://github.com/nvim-treesitter/nvim-treesitter"
-  },
-  ["nvim-web-devicons"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/nvim-web-devicons",
-    url = "https://github.com/nvim-tree/nvim-web-devicons"
-  },
   ["packer.nvim"] = {
     loaded = true,
     path = "/home/akshit/.local/share/nvim/site/pack/packer/start/packer.nvim",
@@ -144,79 +84,24 @@ _G.packer_plugins = {
     path = "/home/akshit/.local/share/nvim/site/pack/packer/start/plenary.nvim",
     url = "https://github.com/nvim-lua/plenary.nvim"
   },
-  ["refactoring.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/refactoring.nvim",
-    url = "https://github.com/ThePrimeagen/refactoring.nvim"
-  },
-  ["symbols-outline.nvim"] = {
-    config = { "\27LJ\2\n=\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\20symbols-outline\frequire\0" },
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/symbols-outline.nvim",
-    url = "https://github.com/simrat39/symbols-outline.nvim"
-  },
-  ["telescope-file-browser.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/telescope-file-browser.nvim",
-    url = "https://github.com/nvim-telescope/telescope-file-browser.nvim"
-  },
-  ["telescope-fzf-native.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/telescope-fzf-native.nvim",
-    url = "https://github.com/nvim-telescope/telescope-fzf-native.nvim"
-  },
-  ["telescope-luasnip.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/telescope-luasnip.nvim",
-    url = "https://github.com/benfowler/telescope-luasnip.nvim"
-  },
-  ["telescope-packer.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/telescope-packer.nvim",
-    url = "https://github.com/nvim-telescope/telescope-packer.nvim"
-  },
-  ["telescope-symbols.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/telescope-symbols.nvim",
-    url = "https://github.com/nvim-telescope/telescope-symbols.nvim"
-  },
-  ["telescope.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/telescope.nvim",
-    url = "https://github.com/nvim-telescope/telescope.nvim"
-  },
   ["themer.lua"] = {
+    config = { "\27LJ\2\nµ\1\0\0\5\0\n\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0005\3\5\0005\4\4\0=\4\6\0035\4\a\0=\4\b\3=\3\t\2B\0\2\1K\0\1\0\vstyles\20variableBuiltIn\1\0\1\nstyle\vitalic\20functionBuiltIn\1\0\0\1\0\1\nstyle\vitalic\1\0\1\16colorscheme\16monokai_pro\nsetup\vthemer\frequire\0" },
     loaded = true,
     path = "/home/akshit/.local/share/nvim/site/pack/packer/start/themer.lua",
     url = "https://github.com/themercorp/themer.lua"
-  },
-  ["trouble.nvim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/trouble.nvim",
-    url = "https://github.com/folke/trouble.nvim"
   },
   ["vim-devicons"] = {
     loaded = true,
     path = "/home/akshit/.local/share/nvim/site/pack/packer/start/vim-devicons",
     url = "https://github.com/ryanoasis/vim-devicons"
-  },
-  ["vim-fetch"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/vim-fetch",
-    url = "https://github.com/wsdjeg/vim-fetch"
-  },
-  ["vista.vim"] = {
-    loaded = true,
-    path = "/home/akshit/.local/share/nvim/site/pack/packer/start/vista.vim",
-    url = "https://github.com/liuchengxu/vista.vim"
   }
 }
 
 time([[Defining packer_plugins]], false)
--- Config for: symbols-outline.nvim
-time([[Config for symbols-outline.nvim]], true)
-try_loadstring("\27LJ\2\n=\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\20symbols-outline\frequire\0", "config", "symbols-outline.nvim")
-time([[Config for symbols-outline.nvim]], false)
+-- Config for: themer.lua
+time([[Config for themer.lua]], true)
+try_loadstring("\27LJ\2\nµ\1\0\0\5\0\n\0\r6\0\0\0'\2\1\0B\0\2\0029\0\2\0005\2\3\0005\3\5\0005\4\4\0=\4\6\0035\4\a\0=\4\b\3=\3\t\2B\0\2\1K\0\1\0\vstyles\20variableBuiltIn\1\0\1\nstyle\vitalic\20functionBuiltIn\1\0\0\1\0\1\nstyle\vitalic\1\0\1\16colorscheme\16monokai_pro\nsetup\vthemer\frequire\0", "config", "themer.lua")
+time([[Config for themer.lua]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then

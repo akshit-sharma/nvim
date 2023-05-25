@@ -9,20 +9,28 @@ local fresh_install = function()
   return false
 end
 
+local config = function(name)
+  return string.format('require(\'configs.%s\')', name)
+end
+
+local run = function(name)
+  return string.format('require(\'run.%s\')', name)
+end
+
 local packer_bootstrap = fresh_install()
 local packer = R('packer')
 packer.startup({function(use)
   use 'wbthomason/packer.nvim'
   use 'nvim-lua/plenary.nvim'
-
   use 'ryanoasis/vim-devicons'
-
+  --[[
   use {
     'nvim-treesitter/nvim-treesitter',
     run = function()
       local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
       ts_update()
     end,
+    config = config('nvim-treesitter')
   }
 
   use('liuchengxu/vista.vim')
@@ -44,7 +52,8 @@ packer.startup({function(use)
       {'benfowler/telescope-luasnip.nvim'},
       {'nvim-telescope/telescope-symbols.nvim'},
       {'nvim-telescope/telescope-packer.nvim'},
-    }
+    },
+    run = run('telescope')
   }
 
   use { 'kosayoda/nvim-lightbulb' }
@@ -54,20 +63,16 @@ packer.startup({function(use)
     branch = 'v2.x',
     requires = {
       -- LSP Support
-      {'neovim/nvim-lspconfig'},             -- Required
-      {                                      -- Optional
-      'williamboman/mason.nvim',
-      run = function()
-        pcall(vim.cmd, 'MasonUpdate')
-      end,
-    },
-    {'williamboman/mason-lspconfig.nvim'}, -- Optional
+      { 'neovim/nvim-lspconfig' },             -- Required
+      { 'williamboman/mason.nvim', run = run('mason') }, -- Optional
+      {'williamboman/mason-lspconfig.nvim'}, -- Optional
 
-    -- Autocompletion
-    {'hrsh7th/nvim-cmp'},     -- Required
-    {'hrsh7th/cmp-nvim-lsp'}, -- Required
-    {'L3MON4D3/LuaSnip'},     -- Required
-  }
+      -- Autocompletion
+      {'hrsh7th/nvim-cmp'},     -- Required
+      {'hrsh7th/cmp-nvim-lsp'}, -- Required
+      {'L3MON4D3/LuaSnip'},     -- Required
+    },
+    run = run('lsp-zero'),
   }
 
   use {
@@ -75,24 +80,26 @@ packer.startup({function(use)
     requires = {
       {"nvim-lua/plenary.nvim"},
       {"nvim-treesitter/nvim-treesitter"}
-    }
+    },
+    config = config('refactoring')
   }
 
   use { 'wsdjeg/vim-fetch' }
-  use {
-    'stevearc/aerial.nvim',
-  }
+  use { 'stevearc/aerial.nvim', config = config('aerial'),  }
   use {
     'SmiteshP/nvim-navic',
     requires = { 'neovim/nvim-lspconfig' }
   }
   use {
     'nvim-lualine/lualine.nvim',
-    requires = { 'nvim-tree/nvim-web-devicons' }
+    requires = { 'nvim-tree/nvim-web-devicons' },
+    config = config('lualine')
   }
-  use {
-    'themercorp/themer.lua'
-  }
+  ]]--
+  use ({
+    'themercorp/themer.lua',
+    config = require'configs.themer',
+  })
 
   if packer_bootstrap then
     R('packer').sync()
