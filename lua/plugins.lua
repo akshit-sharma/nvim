@@ -10,11 +10,13 @@ local fresh_install = function()
 end
 
 local config = function(name)
-  return string.format('require(\'configs.%s\')', name)
+  local config_path = string.format('configs.%s', name)
+  return require(config_path)
 end
 
 local run = function(name)
-  return string.format('require(\'run.%s\')', name)
+  local run_path = string.format('run.%s', name)
+  return require(run_path)
 end
 
 local packer_bootstrap = fresh_install()
@@ -23,7 +25,7 @@ packer.startup({function(use)
   use 'wbthomason/packer.nvim'
   use 'nvim-lua/plenary.nvim'
   use 'ryanoasis/vim-devicons'
-  --[[
+
   use {
     'nvim-treesitter/nvim-treesitter',
     run = function()
@@ -52,12 +54,13 @@ packer.startup({function(use)
       {'benfowler/telescope-luasnip.nvim'},
       {'nvim-telescope/telescope-symbols.nvim'},
       {'nvim-telescope/telescope-packer.nvim'},
+      {'ThePrimeagen/refactoring.nvim'}, --, config = config('refactoring')},
     },
-    run = run('telescope')
+    config = config('telescope'),
+    run = run('telescope'),
   }
 
   use { 'kosayoda/nvim-lightbulb' }
-
   use {
     'VonHeikemen/lsp-zero.nvim',
     branch = 'v2.x',
@@ -65,7 +68,7 @@ packer.startup({function(use)
       -- LSP Support
       { 'neovim/nvim-lspconfig' },             -- Required
       { 'williamboman/mason.nvim', run = run('mason') }, -- Optional
-      {'williamboman/mason-lspconfig.nvim'}, -- Optional
+      { 'williamboman/mason-lspconfig.nvim' }, -- Optional
 
       -- Autocompletion
       {'hrsh7th/nvim-cmp'},     -- Required
@@ -73,33 +76,18 @@ packer.startup({function(use)
       {'L3MON4D3/LuaSnip'},     -- Required
     },
     run = run('lsp-zero'),
-  }
-
-  use {
-    "ThePrimeagen/refactoring.nvim",
-    requires = {
-      {"nvim-lua/plenary.nvim"},
-      {"nvim-treesitter/nvim-treesitter"}
-    },
-    config = config('refactoring')
+    after = 'nvim-treesitter',
   }
 
   use { 'wsdjeg/vim-fetch' }
   use { 'stevearc/aerial.nvim', config = config('aerial'),  }
-  use {
-    'SmiteshP/nvim-navic',
-    requires = { 'neovim/nvim-lspconfig' }
-  }
-  use {
+  use { 'SmiteshP/nvim-navic', requires = { 'neovim/nvim-lspconfig' } }
+  use { 
     'nvim-lualine/lualine.nvim',
+    config = config('lualine'),
     requires = { 'nvim-tree/nvim-web-devicons' },
-    config = config('lualine')
   }
-  ]]--
-  use ({
-    'themercorp/themer.lua',
-    config = require'configs.themer',
-  })
+  use ({ 'themercorp/themer.lua', config = config('themer'), })
 
   if packer_bootstrap then
     R('packer').sync()
