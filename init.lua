@@ -1,4 +1,4 @@
-require('common')
+require('global')
 require('update')
 require('options')
 require('keymappings')

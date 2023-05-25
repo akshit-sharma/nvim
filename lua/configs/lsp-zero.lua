@@ -65,7 +65,7 @@ lsp.set_preferences({
 })
 
 --local navbuddy = require('nvim-navbuddy')
---local navic = require('nvim-navic')
+local navic = require('nvim-navic')
 
 lsp.on_attach(function(client, bufnr)
   local opts = {buffer = bufnr, remap = false}
@@ -76,7 +76,7 @@ lsp.on_attach(function(client, bufnr)
   end
   if client.server_capabilities.documentSymbolProvider then
     --navbuddy.attach(client, bufnr)
-    --navic.attach(client, bufnr)
+    navic.attach(client, bufnr)
   end
 
   -- print offset_encoding

@@ -22,6 +22,7 @@ treesitter_configs.setup({
         "python",
         "typescript",
         "vim",
+        "vimdoc",
         "yaml",
     },
     auto_install=true,
@@ -110,14 +111,13 @@ vim.api.nvim_create_autocmd({'BufEnter','BufAdd','BufNew','BufNewFile','BufWinEn
 })
 ---ENDWORKAROUND
 
+--[[
 local parsers = require('nvim-treesitter.parsers')
 if parsers.has_parser "c" and parsers.has_parser "cpp" and parsers.has_parser "cuda" then
   local ok_query, query = pcall(require, 'vim.treesitter.query')
   local folds_query = [[
-  [
-    (compound_statement)
-  ] @fold
   ]]
+  --[[
   if not ok_query then
     vim.notify('query null, might want to fix', vim.log.levels.ERROR)
   else
@@ -127,3 +127,4 @@ if parsers.has_parser "c" and parsers.has_parser "cpp" and parsers.has_parser "c
     set_query("cuda", "folds", folds_query)
   end
 end
+--]]

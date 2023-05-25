@@ -3,6 +3,8 @@ local vimopt = vim.opt
 vimopt.termguicolors = true
 vimopt.updatetime = 300
 
+vimopt.foldenable = false
+
 vimopt.tabstop = 2
 vimopt.shiftwidth = 2
 vimopt.softtabstop = 2

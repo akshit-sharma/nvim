@@ -9,12 +9,12 @@ local fresh_install = function()
   return false
 end
 
-local packer_bootstrap = false
+local packer_bootstrap = fresh_install()
 local packer = R('packer')
 packer.startup({function(use)
   use 'wbthomason/packer.nvim'
   use 'nvim-lua/plenary.nvim'
-  
+
   use 'ryanoasis/vim-devicons'
 
   use {
@@ -35,10 +35,19 @@ packer.startup({function(use)
 
   use {
     'nvim-telescope/telescope.nvim', tag = '0.1.1',
-    requires = { {'nvim-lua/plenary.nvim'} }
+    requires = {
+      {'nvim-lua/plenary.nvim'},
+      {'folke/trouble.nvim'},
+      {'nvim-tree/nvim-web-devicons'},
+      {'nvim-telescope/telescope-fzf-native.nvim', run = "make" },
+      {'nvim-telescope/telescope-file-browser.nvim'},
+      {'benfowler/telescope-luasnip.nvim'},
+      {'nvim-telescope/telescope-symbols.nvim'},
+      {'nvim-telescope/telescope-packer.nvim'},
+    }
   }
-  use ("nvim-telescope/telescope-file-browser.nvim")
 
+  use { 'kosayoda/nvim-lightbulb' }
 
   use {
     'VonHeikemen/lsp-zero.nvim',
@@ -61,9 +70,29 @@ packer.startup({function(use)
   }
   }
 
-  use { 'wsdjeg/vim-fetch' }
+  use {
+    "ThePrimeagen/refactoring.nvim",
+    requires = {
+      {"nvim-lua/plenary.nvim"},
+      {"nvim-treesitter/nvim-treesitter"}
+    }
+  }
 
-  use { 'ojroques/nvim-hardline' }
+  use { 'wsdjeg/vim-fetch' }
+  use {
+    'stevearc/aerial.nvim',
+  }
+  use {
+    'SmiteshP/nvim-navic',
+    requires = { 'neovim/nvim-lspconfig' }
+  }
+  use {
+    'nvim-lualine/lualine.nvim',
+    requires = { 'nvim-tree/nvim-web-devicons' }
+  }
+  use {
+    'themercorp/themer.lua'
+  }
 
   if packer_bootstrap then
     R('packer').sync()
