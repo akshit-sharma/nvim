@@ -1,5 +1,5 @@
 require('global')
-require('update')
+require('pull')
 require('options')
 require('keymappings')
 require('preinstall')
