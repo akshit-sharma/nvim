@@ -80,6 +80,13 @@ packer.startup({function(use)
   }
 
   use {
+    'rickhowe/spotdiff.vim',
+    requires = {
+      'rickhowe/diffchar.vim'
+    },
+  }
+
+  use {
     'zbirenbaum/copilot.lua',
     cmd = "Copilot",
     event = 'InsertEnter',
