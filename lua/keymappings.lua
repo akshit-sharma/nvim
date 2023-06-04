@@ -22,7 +22,7 @@ end
 local terminalWindowOptions = {
   relative = 'editor',
   width = vim.api.nvim_get_option('columns'),
-  height = 20,
+  height = 18,
   row = vim.api.nvim_get_option('lines') - 20,
   col = 0,
   focusable = true,
@@ -31,23 +31,37 @@ local terminalWindowOptions = {
 
 local lastValidBuffer = function(buffers)
   for i = #buffers, 1, -1 do
-    return buffers[i]
+    if buffers[i] == nil or not vim.api.nvim_buf_is_valid(buffers[i]) then
+      table.remove(buffers, i)
+    else
+      return buffers[i]
+    end
   end
+  return nil
+end
+
+function CreateBuffer()
+  local terminalBufID = vim.api.nvim_create_buf(false, true)
+  if terminalBufID == 0 then
+    vim.notify('Failed to create terminal buffer', vim.log.levels.ERROR)
+    return
+  end
+  table.insert(terminalBufIDs, terminalBufID)
+  return terminalBufID
 end
 
 function OpenTerminal(newTab)
   local initializeTerminal = false
   if #terminalBufIDs == 0 or newTab then
-    local terminalBufID = vim.api.nvim_create_buf(true, true)
-    if terminalBufID == 0 then
-      vim.notify('Failed to create terminal buffer', vim.log.levels.ERROR)
-      return
-    end
-    table.insert(terminalBufIDs, terminalBufID)
+    CreateBuffer()
     HideTerminal()
     initializeTerminal = true
   end
   local terminalBufID = lastValidBuffer(terminalBufIDs)
+  if terminalBufID == nil then
+    terminalBufID = CreateBuffer()
+    initializeTerminal = true
+  end
   if terminalWindowID ~= -1 and not vim.api.nvim_win_is_valid(terminalWindowID) then
     HideTerminal()
   end
