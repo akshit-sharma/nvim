@@ -109,6 +109,14 @@ packer.startup({function(use)
   }
   --use { 'lervag/vimtex', config = config('vimtex') }
 
+  use { 'MunifTanjim/nui.nvim' }
+
+  use {
+    'akinsho/toggleterm.nvim',
+    tag = '*',
+    config = config('toggleterm'),
+  }
+
   if packer_bootstrap then
     R('packer').sync()
   end
