@@ -6,7 +6,9 @@ KM('n', '<Leader>e', ':Lexplore<CR>')
 vim.g.copilot_no_tab_map = true
 
 local terminalWindowID = -1
+local mainWindowID = -1
 local terminalBufIDs = {}
+local terminalCreates = {}
 
 function IsBufferHidden(bufID)
   local windows = vim.api.nvim_list_wins()
@@ -32,49 +34,56 @@ local terminalWindowOptions = {
 local lastValidBuffer = function(buffers)
   for i = #buffers, 1, -1 do
     if buffers[i] == nil or not vim.api.nvim_buf_is_valid(buffers[i]) then
+      terminalCreates[buffers[i]] = false
       table.remove(buffers, i)
     else
-      return buffers[i]
+      return buffers[i], terminalCreates[buffers[i]]
     end
   end
-  return nil
+  local bufferID, _ = CreateBuffer()
+  return bufferID, terminalCreates[bufferID]
 end
 
 function CreateBuffer()
+  HideTerminal()
   local terminalBufID = vim.api.nvim_create_buf(false, true)
   if terminalBufID == 0 then
-    vim.notify('Failed to create terminal buffer', vim.log.levels.ERROR)
-    return
+    return nil, false
   end
   table.insert(terminalBufIDs, terminalBufID)
-  return terminalBufID
+  terminalCreates[terminalBufID] = true
+  return terminalBufID, true
 end
 
 function OpenTerminal(newTab)
+  local terminalBufID = nil
   local initializeTerminal = false
-  if #terminalBufIDs == 0 or newTab then
-    CreateBuffer()
-    HideTerminal()
-    initializeTerminal = true
+  if newTab then
+    terminalBufID, initializeTerminal = CreateBuffer()
   end
-  local terminalBufID = lastValidBuffer(terminalBufIDs)
-  if terminalBufID == nil then
-    terminalBufID = CreateBuffer()
-    initializeTerminal = true
+  if not initializeTerminal then
+    terminalBufID, initializeTerminal = lastValidBuffer(terminalBufIDs)
   end
-  if terminalWindowID ~= -1 and not vim.api.nvim_win_is_valid(terminalWindowID) then
-    HideTerminal()
+  if initializeTerminal then
+    vim.notify('terminalBufID: '..terminalBufID .. ' with initTab')
+  else
+    vim.notify('terminalBufID: '..terminalBufID .. ' without initTab')
   end
   if terminalWindowID ~= -1 and vim.api.nvim_win_is_valid(terminalWindowID) then
+    --vim.cmd('resize ' .. terminalWindowOptions.row)
     vim.api.nvim_set_current_win(terminalWindowID)
     vim.cmd('startinsert')
   end
   if terminalWindowID == -1 or not vim.api.nvim_win_is_valid(terminalWindowID) then
+    --vim.cmd('resize ' .. terminalWindowOptions.row - 1)
+    --vim.notify('should have resized main window')
     terminalWindowID = vim.api.nvim_open_win(terminalBufID, true, terminalWindowOptions)
     vim.api.nvim_win_set_buf(terminalWindowID, terminalBufID)
     vim.cmd('buffer '.. terminalBufID)
     if initializeTerminal then
       vim.cmd('terminal')
+      ---@diagnostic disable-next-line: need-check-nil
+      terminalCreates[terminalBufID] = false
     end
     vim.cmd('startinsert')
   end
@@ -83,9 +92,15 @@ end
 local terminalBufferRegex = '^term.*bash$'
 
 function HideTerminal()
+  --[[
   local curBufName = vim.fn.bufname('%')
   if string.match(curBufName, terminalBufferRegex) then
     vim.cmd('hide')
+  end
+  ]]--
+  if terminalWindowID ~= -1 and vim.api.nvim_win_is_valid(terminalWindowID) then
+    vim.api.nvim_win_hide(terminalWindowID)
+--    vim.cmd('resize ' .. (vim.api.nvim_get_option('lines') - 1))
   end
 end
 
