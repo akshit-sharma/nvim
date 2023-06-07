@@ -39,6 +39,20 @@ packer.startup({function(use)
   }
 
   use {
+    'nvim-treesitter/nvim-treesitter-textobjects',
+    after = { 'nvim-treesitter' },
+    requires = { 'nvim-treesitter/nvim-treesitter' },
+  }
+
+  use {
+    'm-demare/hlargs.nvim',
+    config = config('hlargs'),
+    after = { 'nvim-treesitter' },
+    requires = { 'nvim-treesitter/nvim-treesitter' },
+  }
+
+
+  use {
     'nvim-telescope/telescope.nvim', tag = '0.1.1',
     requires = {
       {'nvim-lua/plenary.nvim'},
@@ -116,6 +130,8 @@ packer.startup({function(use)
     tag = '*',
     config = config('toggleterm'),
   }
+
+  use { 'chrisgrieser/nvim-spider' }
 
   if packer_bootstrap then
     R('packer').sync()
