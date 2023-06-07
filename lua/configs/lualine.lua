@@ -48,6 +48,9 @@ return function()
         {'filetype', icon_only = true}
       },
       lualine_z = { 'filename' },
-    }
+    },
+    inactive_winbar = {
+      lualine_z = { 'filename' },
+    },
   }
 end
