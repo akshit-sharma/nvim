@@ -40,16 +40,17 @@ end)
 
 ---@diagnostic disable-next-line: unused-local
 local function postTermBuf(bufID)
+  vim.cmd('startinsert')
 end
 
 local terminalInitialization = function(termBufID)
   terminalCreates[termBufID] = postTermBuf
   vim.cmd('terminal')
-  ---@diagnostic disable-next-line: need-check-nil
-  local cwd = vim.fn.getcwd()
-  if vim.fn.filereadable(cwd .. '/env/bin/activate') == true then
-    vim.cmd('execute "terminal source ' .. cwd .. '/env/bin/activate"')
+  local envFile = 'env/bin/activate'
+  if vim.fn.filereadable(envFile) == 1 then
+    vim.fn.chansend(vim.b.terminal_job_id, 'source ' .. envFile .. '\n')
   end
+  postTermBuf(termBufID)
 end
 
 local function createBuffer()
@@ -82,7 +83,7 @@ local function validBuffer(newTerm)
   return bufferID, terminalCreates[bufferID]
 end
 
-local createWindowHandler = function(nuiComponent)
+local createNuiHandler = function(nuiComponent)
   local visibility = false
   local initialized = false
   local hide = function()
@@ -94,10 +95,10 @@ local createWindowHandler = function(nuiComponent)
   end
   return hide, function(bufferID, winID)
     nuiComponent.bufnr = bufferID
-    --if initialized == true and vim.api.nvim_win_is_valid(nuiComponent.winid) and winID ~= nuiComponent.winid then
-     -- vim.api.win_gotoid(nuiComponent.winid)
-     -- return nuiComponent.winid
-    --end
+    if initialized == true and visibility == true and winID ~= nuiComponent.winid then
+      vim.fn.win_gotoid(nuiComponent.winid)
+      return nuiComponent.winid
+    end
     if initialized == true and visibility == true then
       return hide()
     end
@@ -113,8 +114,8 @@ local createWindowHandler = function(nuiComponent)
   end
 end
 
-local splitHide, splitHandler  = createWindowHandler(split)
-local popupHide, popupHandler = createWindowHandler(popup)
+local splitHide, splitHandler  = createNuiHandler(split)
+local popupHide, popupHandler = createNuiHandler(popup)
 
 function ToggleSplitWin(newTab)
   popupHide()
@@ -122,7 +123,6 @@ function ToggleSplitWin(newTab)
   local bufId, termCallback = validBuffer(newTab)
   splitHandler(bufId, curWin)
   termCallback(bufId)
-  vim.cmd('startinsert')
 end
 
 function ToggleFloatWin(newTab)
@@ -131,7 +131,6 @@ function ToggleFloatWin(newTab)
   local bufId, termCallback = validBuffer(newTab)
   popupHandler(bufId, curWin)
   termCallback(bufId)
-  vim.cmd('startinsert')
 end
 
 -- Map the key combination <C-j> in normal mode
