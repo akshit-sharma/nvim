@@ -13,6 +13,9 @@ return function()
       return false
     end
   end
+  local function getWindowId()
+    return vim.fn.win_getid()
+  end
   require'lualine'.setup {
     options = {
       theme = 'onedark',
@@ -41,6 +44,7 @@ return function()
       },
     },
     winbar = {
+      lualine_a = { getWindowId },
       lualine_c = {
         { location, cond = available },
       },
@@ -50,6 +54,7 @@ return function()
       lualine_z = { 'filename' },
     },
     inactive_winbar = {
+      lualine_a = { getWindowId },
       lualine_z = { 'filename' },
     },
   }

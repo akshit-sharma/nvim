@@ -7,17 +7,20 @@ vim.keymap.set({"n", "o", "x"}, "e", "<cmd>lua require('spider').motion('e')<CR>
 vim.keymap.set({"n", "o", "x"}, "b", "<cmd>lua require('spider').motion('b')<CR>", { desc = "Spider-b" })
 vim.keymap.set({"n", "o", "x"}, "ge", "<cmd>lua require('spider').motion('ge')<CR>", { desc = "Spider-ge" })
 
-KM('n', '<C-j>', '<Cmd>ToggleTerm<CR>', NOREMAP_SILENT)
 KM('n', '<Leader>e', '<Cmd>Lexplore<CR>')
+KM('n', '<M-w>', '<C-w>', NOREMAP_SILENT)
+--[[
 KM('n', '<C-\\><t>', '<Cmd>TermSelect<CR>', NOREMAP_SILENT)
 KM('n', '<C-\\><C-n>', '<Cmd>TerminalNew()<CR>', NOREMAP_SILENT)
+--KM('n', '<C-j>', '<Cmd>ToggleTerm<CR>', NOREMAP_SILENT)
 
-KM('t', '<C-j>', '<Cmd>ToggleTerm<CR>', NOREMAP_SILENT)
+--KM('t', '<C-j>', '<Cmd>ToggleTerm<CR>', NOREMAP_SILENT)
 KM('t', '<C-\\><C-w>', '<C-\\><C-n><C-w>', NOREMAP_SILENT)
 KM('t', '<M-w>', '<C-\\><C-n><C-w>', NOREMAP_SILENT)
 KM('t', '<C-\\>t', '<Cmd>TermSelect<CR>', NOREMAP_SILENT)
 KM('t', '<C-\\>trn', '<Cmd>ToggleTermSetName<CR>', NOREMAP)
 KM('t', '<C-\\><C-t>', '<Cmd>TerminalNew()<CR>', NOREMAP_SILENT)
+]]--
 
 vim.g.copilot_no_tab_map = true
 

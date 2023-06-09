@@ -1,121 +1,150 @@
-
-
-local terminalWindowID = -1
-local mainWindowID = -1
 local terminalBufIDs = {}
 local terminalCreates = {}
+local lastUsedBuffer = nil
 
-function IsBufferHidden(bufID)
-  local windows = vim.api.nvim_list_wins()
-  for _, winID in ipairs(windows) do
-    local winBufID = vim.api.nvim_win_get_buf(winID)
-    if winBufID == bufID then
-      return false
-    end
-  end
-  return true
-end
+local Split = require('nui.split')
+local Popup = require('nui.popup')
 
-local terminalWindowOptions = {
+local event = require('nui.utils.autocmd').event
+
+local split = Split({
   relative = 'editor',
-  width = vim.api.nvim_get_option('columns'),
-  height = 18,
-  row = vim.api.nvim_get_option('lines') - 20,
-  col = 0,
-  focusable = true,
-  --style = 'minimal',
-}
+  position = 'bottom',
+  size = 20,
+})
 
-local lastValidBuffer = function(buffers)
-  for i = #buffers, 1, -1 do
-    if buffers[i] == nil or not vim.api.nvim_buf_is_valid(buffers[i]) then
-      terminalCreates[buffers[i]] = false
-      table.remove(buffers, i)
-    else
-      return buffers[i], terminalCreates[buffers[i]]
-    end
-  end
-  local bufferID, _ = CreateBuffer()
-  return bufferID, terminalCreates[bufferID]
+split:on(event.WinClosed, function()
+  split:hide()
+end)
+
+local popup = Popup({
+  enter = true,
+  focusable = true,
+  border = {
+    style = 'rounded',
+    text = {
+      top = "Float Terminal",
+      top_align = "center",
+    },
+  },
+  position = '50%',
+  size = {
+    width = "80%",
+    height = "60%",
+  },
+})
+
+popup:on(event.WinClosed, function()
+  popup:hide()
+end)
+
+---@diagnostic disable-next-line: unused-local
+local function postTermBuf(bufID)
 end
 
-function CreateBuffer()
-  HideTerminal()
+local terminalInitialization = function(termBufID)
+  terminalCreates[termBufID] = postTermBuf
+  vim.cmd('terminal')
+  ---@diagnostic disable-next-line: need-check-nil
+  local cwd = vim.fn.getcwd()
+  if vim.fn.filereadable(cwd .. '/env/bin/activate') == true then
+    vim.cmd('execute "terminal source ' .. cwd .. '/env/bin/activate"')
+  end
+end
+
+local function createBuffer()
   local terminalBufID = vim.api.nvim_create_buf(false, true)
   if terminalBufID == 0 then
     return nil, false
   end
   table.insert(terminalBufIDs, terminalBufID)
-  terminalCreates[terminalBufID] = true
+  terminalCreates[terminalBufID] = terminalInitialization
   return terminalBufID, true
 end
 
-function OpenTerminal(newTab)
-  local terminalBufID = nil
-  local initializeTerminal = false
-  if newTab then
-    terminalBufID, initializeTerminal = CreateBuffer()
+local function validBuffer(newTerm)
+  if newTerm == true then
+    local bufferID, _ = createBuffer()
+    return bufferID, terminalCreates[bufferID]
   end
-  if not initializeTerminal then
-    terminalBufID, initializeTerminal = lastValidBuffer(terminalBufIDs)
-  end
-  if terminalWindowID ~= -1 and vim.api.nvim_win_is_valid(terminalWindowID) then
-    --vim.cmd('resize ' .. terminalWindowOptions.row)
-    vim.api.nvim_set_current_win(terminalWindowID)
-    vim.cmd('startinsert')
-  end
-  if terminalWindowID == -1 or not vim.api.nvim_win_is_valid(terminalWindowID) then
-    --vim.cmd('resize ' .. terminalWindowOptions.row - 1)
-    --vim.notify('should have resized main window')
-    terminalWindowID = vim.api.nvim_open_win(terminalBufID, true, terminalWindowOptions)
-    vim.api.nvim_win_set_buf(terminalWindowID, terminalBufID)
-    vim.cmd('buffer '.. terminalBufID)
-    if initializeTerminal then
-      vim.cmd('terminal')
-      ---@diagnostic disable-next-line: need-check-nil
-      terminalCreates[terminalBufID] = false
+  for i = #terminalBufIDs, 1, -1 do
+    if terminalBufIDs[i] == nil or not vim.api.nvim_buf_is_valid(terminalBufIDs[i]) then
+      if lastUsedBuffer ~= terminalBufIDs[i] then
+        lastUsedBuffer = nil
+      end
+      terminalCreates[terminalBufIDs[i]] = postTermBuf
+      table.remove(terminalBufIDs, i)
+    else
+      return terminalBufIDs[i], terminalCreates[terminalBufIDs[i]]
     end
-    vim.cmd('startinsert')
+  end
+  local bufferID, _ = createBuffer()
+  return bufferID, terminalCreates[bufferID]
+end
+
+local createWindowHandler = function(nuiComponent)
+  local visibility = false
+  local initialized = false
+  local hide = function()
+    if visibility == true then
+      nuiComponent:hide()
+      visibility = false
+    end
+    return -1
+  end
+  return hide, function(bufferID, winID)
+    nuiComponent.bufnr = bufferID
+    --if initialized == true and vim.api.nvim_win_is_valid(nuiComponent.winid) and winID ~= nuiComponent.winid then
+     -- vim.api.win_gotoid(nuiComponent.winid)
+     -- return nuiComponent.winid
+    --end
+    if initialized == true and visibility == true then
+      return hide()
+    end
+    if initialized == true then
+        nuiComponent:show()
+    end
+    if initialized == false then
+        initialized = true
+        nuiComponent:mount()
+    end
+    visibility = true
+    return nuiComponent.winid
   end
 end
 
-local terminalBufferRegex = '^term.*bash$'
+local splitHide, splitHandler  = createWindowHandler(split)
+local popupHide, popupHandler = createWindowHandler(popup)
 
-function HideTerminal()
-  --[[
-  local curBufName = vim.fn.bufname('%')
-  if string.match(curBufName, terminalBufferRegex) then
-    vim.cmd('hide')
-  end
-  ]]--
-  if terminalWindowID ~= -1 and vim.api.nvim_win_is_valid(terminalWindowID) then
-    vim.api.nvim_win_hide(terminalWindowID)
---    vim.cmd('resize ' .. (vim.api.nvim_get_option('lines') - 1))
-  end
+function ToggleSplitWin(newTab)
+  popupHide()
+  local curWin = vim.api.nvim_get_current_win()
+  local bufId, termCallback = validBuffer(newTab)
+  splitHandler(bufId, curWin)
+  termCallback(bufId)
+  vim.cmd('startinsert')
 end
 
-local fullTerminalFlag = false
-function ToggleFullTerminal()
-  if fullTerminalFlag then
-    HideTerminal()
-    OpenTerminal()
-  else
-    vim.cmd('resize')
-  end
-  fullTerminalFlag = not fullTerminalFlag
+function ToggleFloatWin(newTab)
+  splitHide()
+  local curWin = vim.api.nvim_get_current_win()
+  local bufId, termCallback = validBuffer(newTab)
+  popupHandler(bufId, curWin)
+  termCallback(bufId)
+  vim.cmd('startinsert')
 end
 
 -- Map the key combination <C-j> in normal mode
-KM('n', '<C-j>', '<Cmd>lua OpenTerminal()<CR>', NOREMAP_SILENT)
+KM('n', '<C-j>', '<Cmd>lua ToggleSplitWin(false)<CR>', NOREMAP_SILENT)
+KM('n', '<C-\\><C-s>', '<Cmd>lua ToggleFullScreenTerminal()<CR>', NOREMAP_SILENT)
+KM('n', '<C-\\><C-f>', '<Cmd>lua ToggleFloatWin(false)<CR>', NOREMAP_SILENT)
 
 -- Map the key combination <C-j> in terminal mode
-KM('t', '<C-j>', '<Cmd>lua HideTerminal()<CR>', NOREMAP_SILENT)
-KM('t', '<C-\\><C-s>', '<Cmd>lua ToggleFullTerminal()<CR>', NOREMAP_SILENT)
+KM('t', '<C-j>', '<Cmd>lua ToggleSplitWin(false)<CR>', NOREMAP_SILENT)
+KM('t', '<C-\\><C-s>', '<Cmd>lua ToggleFullScreenTerminal()<CR>', NOREMAP_SILENT)
+KM('t', '<C-\\><C-f>', '<Cmd>lua ToggleFloatWin(false)<CR>', NOREMAP_SILENT)
 KM('t', '<C-\\><C-t>', '<Cmd>lua OpenTerminal(true)<CR>', NOREMAP_SILENT)
 
 -- use make movement from terminal to window same as between windows
-KM('t', '<C-w>h', '<C-\\><C-n><C-w>h', NOREMAP_SILENT)
-KM('t', '<C-w>j', '<C-\\><C-n><C-w>j', NOREMAP_SILENT)
-KM('t', '<C-w>k', '<C-\\><C-n><C-w>k', NOREMAP_SILENT)
-KM('t', '<C-w>l', '<C-\\><C-n><C-w>l', NOREMAP_SILENT)
+KM('t', '<M-w>', '<C-\\><C-n><C-w>', NOREMAP_SILENT)
 

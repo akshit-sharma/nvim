@@ -11,7 +11,16 @@ lsp.ensure_installed({
   'cmake',
   'pyright',
   'vimls',
-  'rust_analyzer'
+  'rust_analyzer',
+  'jdtls',
+  'html',
+  'ltex',
+  'lua_ls',
+  'rust_analyzer',
+  'tsserver',
+  'vimls',
+  'volar',
+  'yamlls',
 })
 
 local ok_cmp, cmp = pcall(require, 'cmp')
@@ -103,6 +112,13 @@ lsp.on_attach(function(client, bufnr)
   vim.keymap.set("n", "<leader>fm", function() vim.lsp.buf.format { async = true } end, opts)
   vim.keymap.set("v", "<leader>fm", function() vim.lsp.buf.format { async = true } end, opts)
 end)
+
+lsp.set_sign_icons({
+  error = '✘',
+  warn = '▲',
+  hint = '⚑',
+  info = '»'
+})
 
 lsp.setup()
 
