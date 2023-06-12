@@ -64,15 +64,6 @@ lsp.setup_nvim_cmp({
   mapping = cmp_mapping,
 })
 
-lsp.set_preferences({
-  sign_icons ={
-    error = 'E',
-    warn = 'W',
-    hint = 'H',
-    info = 'I'
-  }
-})
-
 --local navbuddy = require('nvim-navbuddy')
 local navic = require('nvim-navic')
 

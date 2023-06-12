@@ -19,15 +19,36 @@ local run = function(name)
   return require(run_path)
 end
 
+local function mainComputer()
+  local hostname = vim.fn.hostname()
+  if hostname == nil then return false end
+  if not vim.env.MAIN_COMPUTERS then return false end
+  local mainComputers = vim.split(vim.env.MAIN_COMPUTERS, ', ')
+  for _, computer in ipairs(mainComputers) do
+    if computer == hostname then return true end
+  end
+  return vim.tbl_contains(mainComputers, hostname)
+end
+
+local draculaColorScheme = false
+
 local packer_bootstrap = fresh_install()
 local packer = R('packer')
 packer.startup({function(use)
   use 'wbthomason/packer.nvim'
   use 'nvim-lua/plenary.nvim'
-  use { 'themercorp/themer.lua', config = config('themer'), }
+  if draculaColorScheme then
+    use { 'Mofiqul/dracula.nvim', config = config('dracula'), }
+    use { 'themercorp/themer.lua', }
+  else
+    use { 'Mofiqul/dracula.nvim', }
+    use { 'themercorp/themer.lua', config = config('themer'), }
+  end
   use 'ryanoasis/vim-devicons'
   use { 'rcarriga/nvim-notify', config=config('notify'), run=run('notify')}
   use { 'vigoux/notifier.nvim', config=config('notifier'), }
+
+  use { 'folke/which-key.nvim', config = config('which-key'), }
 
   use {
     'nvim-treesitter/nvim-treesitter',
@@ -51,7 +72,6 @@ packer.startup({function(use)
     requires = { 'nvim-treesitter/nvim-treesitter' },
   }
 
-
   use {
     'nvim-telescope/telescope.nvim', tag = '0.1.1',
     requires = {
@@ -64,10 +84,15 @@ packer.startup({function(use)
       {'nvim-telescope/telescope-symbols.nvim'},
       {'nvim-telescope/telescope-packer.nvim'},
       {'ThePrimeagen/refactoring.nvim'}, --, config = config('refactoring')},
+      {'rmagatti/goto-preview', config = config('goto-preview')},
     },
     config = config('telescope'),
     run = run('telescope'),
   }
+  --use {
+  --  after = { 'telescope.nvim' },
+  --  config = config('goto-preview'),
+  --}
 
   use {
     'VonHeikemen/lsp-zero.nvim',
@@ -123,6 +148,8 @@ packer.startup({function(use)
   }
   --use { 'lervag/vimtex', config = config('vimtex') }
 
+  use { 'numToStr/Comment.nvim', config = config('Comment') }
+
   use { 'MunifTanjim/nui.nvim' }
 
   use {
@@ -132,6 +159,27 @@ packer.startup({function(use)
   }
 
   use { 'chrisgrieser/nvim-spider' }
+
+  use {
+    'gelguy/wilder.nvim',
+    config = config('wilder'),
+  }
+
+  use {
+    'tversteeg/registers.nvim',
+    config = config('registers'),
+  }
+
+  if mainComputer() then
+    use {
+      'Dhanus3133/Leetbuddy.nvim',
+      requires = {
+        'nvim-lua/plenary.nvim',
+        'nvim-telescope/telescope.nvim',
+      },
+      config = config('leetbuddy'),
+    }
+  end
 
   if packer_bootstrap then
     R('packer').sync()
