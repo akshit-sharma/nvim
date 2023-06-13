@@ -34,6 +34,13 @@ local draculaColorScheme = false
 
 local packer_bootstrap = fresh_install()
 local packer = R('packer')
+
+local ok_notify, notify = pcall(require, 'notify')
+if ok_notify then
+  run('notify')()
+  vim.notify=notify
+end
+
 packer.startup({function(use)
   use 'wbthomason/packer.nvim'
   use 'nvim-lua/plenary.nvim'
@@ -45,8 +52,8 @@ packer.startup({function(use)
     use { 'themercorp/themer.lua', config = config('themer'), }
   end
   use 'ryanoasis/vim-devicons'
-  use { 'rcarriga/nvim-notify', config=config('notify'), run=run('notify')}
-  use { 'vigoux/notifier.nvim', config=config('notifier'), }
+  use { 'rcarriga/nvim-notify', config=config('notify') }
+  --use { 'vigoux/notifier.nvim', config=config('notifier'), }
 
   use { 'folke/which-key.nvim', config = config('which-key'), }
 
@@ -109,8 +116,8 @@ packer.startup({function(use)
       { 'L3MON4D3/LuaSnip' },     -- Required
 
       { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
-      { 'j-hui/fidget.nvim' },
-      { 'kosayoda/nvim-lightbulb' },
+      { 'j-hui/fidget.nvim', config = config('fidget'), tag = "legacy" },
+      { 'kosayoda/nvim-lightbulb', config = config('lightbulb') },
       { 'ray-x/lsp_signature.nvim' },
       { 'simrat39/symbols-outline.nvim', config = config('symbols-outline') },
       { 'liuchengxu/vista.vim' },
@@ -152,25 +159,26 @@ packer.startup({function(use)
 
   use { 'MunifTanjim/nui.nvim' }
 
-  use {
-    'akinsho/toggleterm.nvim',
-    tag = '*',
-    config = config('toggleterm'),
-  }
+  use { 'akinsho/toggleterm.nvim', tag = '*', config = config('toggleterm'), }
 
   use { 'chrisgrieser/nvim-spider' }
 
-  use {
-    'gelguy/wilder.nvim',
-    config = config('wilder'),
-  }
+  use { 'gelguy/wilder.nvim', config = config('wilder'), }
 
-  use {
-    'tversteeg/registers.nvim',
-    config = config('registers'),
-  }
+  use { 'tversteeg/registers.nvim', config = config('registers'), }
 
   if mainComputer() then
+    use {
+      'p00f/cphelper.nvim',
+    }
+
+    use {
+      'xeluxee/competitest.nvim',
+      requires = 'MunifTanjim/nui.nvim',
+      config = function() require'competitest'.setup() end
+    }
+
+    --[[
     use {
       'Dhanus3133/Leetbuddy.nvim',
       requires = {
@@ -179,6 +187,7 @@ packer.startup({function(use)
       },
       config = config('leetbuddy'),
     }
+    ]]--
   end
 
   if packer_bootstrap then

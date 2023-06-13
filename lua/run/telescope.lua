@@ -15,7 +15,7 @@ TELESCOPE.load_extension("file_browser")
 TELESCOPE.load_extension("packer")
 TELESCOPE.load_extension("aerial")
 TELESCOPE.load_extension("refactoring")
---TELESCOPE.load_extension("notify")
+TELESCOPE.load_extension("notify")
 
 local project_files = function()
     local ok_git_files = pcall(

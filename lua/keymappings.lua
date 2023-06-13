@@ -49,11 +49,6 @@ KM("n", "<leader>rbf", [[ <Cmd>lua require('refactoring').refactor('Extract Bloc
 -- Inline variable can also pick up the identifier currently under the cursor without visual mode
 KM("n", "<leader>ri", [[ <Cmd>lua require('refactoring').refactor('Inline Variable')<CR>]], {noremap = true, silent = true, expr = false})
 
-KM("n", "<leader>lq", "<Cmd>LBQuestions<CR>", NOREMAP_SILENT)
-KM("n", "<leader>lv", "<Cmd>LBQuestion<CR>", NOREMAP_SILENT)
-KM("n", "<leader>lt", "<Cmd>LBTest<CR>", NOREMAP_SILENT)
-KM("n", "<leader>ls", "<Cmd>LBSubmit<CR>", NOREMAP_SILENT)
-
 -- prompt for a refactor to apply when the remap is triggered
 KM(
     "v",
