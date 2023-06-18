@@ -25,5 +25,6 @@ vimopt.listchars = {
   extends = "↪",
   precedes = "↩",
 }
+vimopt.list = true
 
 vimopt.background = "dark"
