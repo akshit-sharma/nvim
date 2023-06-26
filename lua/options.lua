@@ -28,3 +28,6 @@ vimopt.listchars = {
 vimopt.list = true
 
 vimopt.background = "dark"
+
+vimopt.splitright = true
+vimopt.splitbelow = true

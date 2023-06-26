@@ -35,10 +35,9 @@ local draculaColorScheme = false
 local packer_bootstrap = fresh_install()
 local packer = R('packer')
 
-local ok_notify, notify = pcall(require, 'notify')
+local ok_notify, _ = pcall(require, 'notify')
 if ok_notify then
   run('notify')()
-  vim.notify=notify
 end
 
 packer.startup({function(use)
@@ -178,7 +177,6 @@ packer.startup({function(use)
       config = function() require'competitest'.setup() end
     }
 
-    --[[
     use {
       'Dhanus3133/Leetbuddy.nvim',
       requires = {
@@ -187,7 +185,6 @@ packer.startup({function(use)
       },
       config = config('leetbuddy'),
     }
-    ]]--
   end
 
   if packer_bootstrap then
