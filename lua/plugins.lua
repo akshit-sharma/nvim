@@ -152,7 +152,8 @@ packer.startup({function(use)
     requires = { 'nvim-tree/nvim-web-devicons' },
     after = { 'nvim-navic' },
   }
-  --use { 'lervag/vimtex', config = config('vimtex') }
+
+  use { 'lervag/vimtex', config = config('vimtex') }
 
   use { 'numToStr/Comment.nvim', config = config('Comment') }
 
@@ -165,6 +166,10 @@ packer.startup({function(use)
   use { 'gelguy/wilder.nvim', config = config('wilder'), }
 
   use { 'tversteeg/registers.nvim', config = config('registers'), }
+
+  use { 'gw31415/nvim-tetris' }
+
+  use { 'jim-fx/sudoku.nvim', cmd='Sudoku', config=config('sudoku'), }
 
   if mainComputer() then
     use {
