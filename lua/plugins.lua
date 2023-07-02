@@ -9,15 +9,36 @@ local fresh_install = function()
   return false
 end
 
-local config = function(name)
+local ok_notify, _ = pcall(require, 'notify')
+if ok_notify then
+  require('configs.notify')()
+  require('run.notify')()
+end
+
+local config = function(name, notify)
   local config_path = string.format('configs.%s', name)
+  if not config_path then
+    local errorMsg = string.format('error loading %s', config_path)
+    notify(errorMsg, vim.log.level.ERROR, {title=name})
+    return function() end
+  end
   return require(config_path)
 end
 
-local run = function(name)
+local run = function(name, notify)
   local run_path = string.format('run.%s', name)
+  if not run_path then
+    local errorMsg = string.format('error loading %s', run_path)
+    notify(errorMsg, vim.log.level.ERROR, {title=name})
+    return function() end
+  end
   return require(run_path)
 end
+
+local draculaColorScheme = false
+
+local packer_bootstrap = fresh_install()
+local packer = R('packer')
 
 local function mainComputer()
   local hostname = vim.fn.hostname()
@@ -28,16 +49,6 @@ local function mainComputer()
     if computer == hostname then return true end
   end
   return vim.tbl_contains(mainComputers, hostname)
-end
-
-local draculaColorScheme = false
-
-local packer_bootstrap = fresh_install()
-local packer = R('packer')
-
-local ok_notify, _ = pcall(require, 'notify')
-if ok_notify then
-  run('notify')()
 end
 
 packer.startup({function(use)
@@ -170,6 +181,10 @@ packer.startup({function(use)
   use { 'gw31415/nvim-tetris' }
 
   use { 'jim-fx/sudoku.nvim', cmd='Sudoku', config=config('sudoku'), }
+
+  use { 'lukas-reineke/indent-blankline.nvim', config = config('indent-blankline'), }
+
+--  use { 'vigoux/ltex-ls.nvim', requires='neovim/nvim-lspconfig', config = config('ltex-ls'), }
 
   if mainComputer() then
     use {
