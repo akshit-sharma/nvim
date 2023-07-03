@@ -1,7 +1,24 @@
 return function()
   require'copilot'.setup({
     filetype = {
-      ["*"] = true
+      cpp = function()
+        if string.match(vim.fs.basename(vim.api.nvim_buf_get_name(0)), '^%.leetcode.*') then
+          return false
+        end
+        return true
+      end,
+      c = true,
+      lua = true,
+      tex = true,
+      python = true,
+      markdown = true,
+      sh = true,
+      zsh = true,
+      typescript = true,
+      javascript = true,
+      html = true,
+      css = true,
+      rust = true,
     },
     suggestion = {
       keymap = {
