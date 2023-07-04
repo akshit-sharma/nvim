@@ -182,7 +182,7 @@ packer.startup({function(use)
 
   use { 'jim-fx/sudoku.nvim', cmd='Sudoku', config=config('sudoku'), }
 
-  use { 'lukas-reineke/indent-blankline.nvim', config = config('indent-blankline'), }
+--  use { 'lukas-reineke/indent-blankline.nvim', config = config('indent-blankline'), }
 
 --  use { 'vigoux/ltex-ls.nvim', requires='neovim/nvim-lspconfig', config = config('ltex-ls'), }
 

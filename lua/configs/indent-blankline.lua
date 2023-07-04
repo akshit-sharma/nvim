@@ -6,6 +6,7 @@ return function()
   vim.cmd [[highlight IndentBlanklineIndent5 guifg=#61AFEF gui=nocombine]]
   vim.cmd [[highlight IndentBlanklineIndent6 guifg=#C678DD gui=nocombine]]
 
+--[[
   require('indent_blankline').setup {
     space_char_blankline = " ",
     char_highlight_line = {
@@ -17,4 +18,5 @@ return function()
       "IndentBlanklineIndent6",
     },
   }
+]]--
 end
