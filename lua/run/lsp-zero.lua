@@ -39,11 +39,26 @@ local cmp_mapping = lsp.defaults.cmp_mappings({
     behavior = cmp.ConfirmBehavior.Replace,
     select = true
   }),
-
   ['<C-k>'] = cmp.mapping.confirm({
     behavior = cmp.ConfirmBehavior.Insert,
     select = true
   }),
+  ['<C-x><C-n>'] = cmp.mapping(function(fallback)
+    local status_ok, luasnip = pcall(require, 'luasnip')
+    if status_ok and luasnip.expand_or_jumpable() then
+      luasnip.expand_or_jump()
+    else
+      fallback()
+    end
+  end, { "i", "s" }),
+  ['<C-x><C-p>'] = cmp.mapping(function(fallback)
+    local status_ok, luasnip = pcall(require, 'luasnip')
+    if status_ok and luasnip.jumpable(-1) then
+      luasnip.jump(-1)
+    else
+      fallback()
+    end
+  end, { "i", "s" })
 })
 
 -- disable completion with table
