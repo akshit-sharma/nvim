@@ -69,10 +69,7 @@ packer.startup({function(use)
 
   use {
     'nvim-treesitter/nvim-treesitter',
-    run = function()
-      local ts_update = require('nvim-treesitter.install').update({ with_sync = true })
-      ts_update()
-    end,
+    run = run('nvim-treesitter'),
     config = config('nvim-treesitter')
   }
 
@@ -165,6 +162,14 @@ packer.startup({function(use)
   }
 
   use { 'lervag/vimtex', config = config('vimtex') }
+
+  use { '0styx0/abbreinder.nvim',
+    requires = {
+      { '0styx0/abbremand.nvim', module = 'abbremand' }
+    },
+    config = config('abbreinder'),
+    event = 'BufRead',
+  }
 
   use { 'numToStr/Comment.nvim', config = config('Comment') }
 
