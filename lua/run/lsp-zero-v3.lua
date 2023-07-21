@@ -28,7 +28,7 @@ vim.lsp.set_log_level('debug')
 local lsp = require("lsp-zero").preset({})
 
 local attach = function(client, bufnr)
-  lsp.default_keymaps({buffer = bufnr})
+  lsp.default_keymaps({buffer = bufnr, preserve_mappings = false})
 end
 
 lsp.on_attach(attach)
