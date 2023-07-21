@@ -33,7 +33,8 @@ return function()
         'aerial'
       },
 
-      lualine_x = { 'diagnostic' },
+      lualine_x = {
+      },
       lualine_y = {
         { 'encoding', fmt = function(str) return (str ~= "utf-8" and str or "") end },
       },
@@ -48,6 +49,7 @@ return function()
       lualine_c = {
         { location, cond = available },
       },
+      lualine_x = { 'diagnostics' },
       lualine_y = {
         {'filetype', icon_only = true}
       },
@@ -55,6 +57,7 @@ return function()
     },
     inactive_winbar = {
       lualine_a = { getWindowId },
+      lualine_x = { 'diagnostics' },
       lualine_z = { 'filename' },
     },
   }

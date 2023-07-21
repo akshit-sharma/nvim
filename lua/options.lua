@@ -29,6 +29,8 @@ vimopt.list = true
 
 vimopt.background = "dark"
 
+vimopt.spelllang = "en_us"
+
 --vimopt.splitright = true
 --vimopt.splitbelow = true
 
@@ -39,3 +41,12 @@ augroup numbertoggle
   autocmd BufLeave,FocusLost,InsertEnter,WinLeave   * if &nu                  | set nornu | endif
 augroup END
 ]])
+
+-- -- if .tex, .md, or .bib file, set spell
+-- vim.cmd([[
+-- augroup spell
+--   autocmd!
+--   autocmd BufNewFile,BufRead *.tex,*.md,*.bib setlocal spell
+-- augroup END
+-- ]])
+

@@ -1,1 +1,1 @@
-require('preinstall.nvim-treesitter')
+--require('preinstall.nvim-treesitter')

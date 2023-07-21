@@ -82,12 +82,39 @@ lsp.setup_nvim_cmp({
 --local navbuddy = require('nvim-navbuddy')
 local navic = require('nvim-navic')
 
+local dictPath = vim.fn.expand("~") .. "/.local/share/ltex"
+
+local filepath = dictPath .. "/ltex.dictionary.en-US.txt"
+local words = {}
+
+for word in io.open(filepath, "r"):lines() do
+  table.insert(words, word)
+end
+
+require('lspconfig').ltex.setup({
+  settings = {
+    ltex = {
+      dictionary = {
+        en_US = words
+      }
+    }
+  }
+})
+
 lsp.on_attach(function(client, bufnr)
   local opts = {buffer = bufnr, remap = false}
 
   if client.name == "eslint" then
       vim.cmd.LspStop('eslint')
       return
+  end
+  if client.name == "ltex" then
+    if vim.fn.isdirectory(dictPath) == 0 then
+      vim.fn.mkdir(dictPath, "p")
+    end
+    require('ltex_extra').setup {
+      path = vim.fn.expand("~") .. "/.local/share/ltex"
+    }
   end
   if client.server_capabilities.documentSymbolProvider then
     --navbuddy.attach(client, bufnr)

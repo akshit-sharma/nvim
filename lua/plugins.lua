@@ -15,21 +15,21 @@ if ok_notify then
   require('run.notify')()
 end
 
-local config = function(name, notify)
+local config = function(name)
   local config_path = string.format('configs.%s', name)
-  if not config_path then
+  if not config_path or not pcall(require, config_path) then
     local errorMsg = string.format('error loading %s', config_path)
-    notify(errorMsg, vim.log.level.ERROR, {title=name})
+    vim.notify(errorMsg, vim.log.levels.ERROR, {title=name})
     return function() end
   end
   return require(config_path)
 end
 
-local run = function(name, notify)
+local run = function(name)
   local run_path = string.format('run.%s', name)
-  if not run_path then
+  if not run_path or not pcall(require, run_path) then
     local errorMsg = string.format('error loading %s', run_path)
-    notify(errorMsg, vim.log.level.ERROR, {title=name})
+    vim.notify(errorMsg, vim.log.levels.ERROR, {title=name})
     return function() end
   end
   return require(run_path)
@@ -50,6 +50,37 @@ local function mainComputer()
   end
   return vim.tbl_contains(mainComputers, hostname)
 end
+
+-- if not git -C ~/.local/share/nvim/site/pack/packer/start/lsp-zero.nvim/ branch | cut -d' ' -f2 | grep dev-v3; then remove the lsp-zero.nvim folder
+local function run_shell_command(command)
+    local handle = io.popen(command)
+    if handle == nil then
+        return ""
+    end
+    local result = handle:read("*a")
+    if result == nil then
+        return ""
+    end
+    handle:close()
+    return result
+end
+
+local function branch_exists(branch)
+    local cmd = "git -C ~/.local/share/nvim/site/pack/packer/start/lsp-zero.nvim/ branch"
+    local branches = run_shell_command(cmd)
+    return branches:find(branch, 1, true)
+end
+
+local function remove_lsp_zero_nvim_folder()
+    local cmd = "rm -rf ~/.local/share/nvim/site/pack/packer/start/lsp-zero.nvim/"
+    os.execute(cmd)
+end
+
+---- Check if the 'dev-v3' branch exists
+--if not branch_exists("dev-v3") then
+--    remove_lsp_zero_nvim_folder()
+--end
+
 
 packer.startup({function(use)
   use 'wbthomason/packer.nvim'
@@ -110,7 +141,7 @@ packer.startup({function(use)
 
   use {
     'VonHeikemen/lsp-zero.nvim',
-    branch = 'v2.x',
+    branch = 'dev-v3',
     requires = {
       -- LSP Support
       { 'neovim/nvim-lspconfig' },             -- Required
@@ -128,8 +159,9 @@ packer.startup({function(use)
       { 'ray-x/lsp_signature.nvim' },
       { 'simrat39/symbols-outline.nvim', config = config('symbols-outline') },
       { 'liuchengxu/vista.vim' },
+      { 'barreiroleo/ltex-extra.nvim' },
     },
-    run = run('lsp-zero'),
+    run = run('lsp-zero-v3'),
   }
 
   use {
@@ -189,7 +221,7 @@ packer.startup({function(use)
 
 --  use { 'lukas-reineke/indent-blankline.nvim', config = config('indent-blankline'), }
 
---  use { 'vigoux/ltex-ls.nvim', requires='neovim/nvim-lspconfig', config = config('ltex-ls'), }
+ -- use { 'vigoux/ltex-ls.nvim', requires='neovim/nvim-lspconfig', config = config('ltex-ls'), }
 
   if mainComputer() then
     use {
@@ -209,6 +241,7 @@ packer.startup({function(use)
         'nvim-telescope/telescope.nvim',
       },
       config = config('leetbuddy'),
+      run = run('leetbuddy'),
     }
   end
 
