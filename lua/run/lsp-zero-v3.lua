@@ -23,7 +23,7 @@ if not pcall(require, 'lspconfig') then
   return
 end
 
-vim.lsp.set_log_level('debug')
+-- vim.lsp.set_log_level('debug')
 
 local lsp = require("lsp-zero").preset({})
 
