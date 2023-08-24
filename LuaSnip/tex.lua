@@ -38,5 +38,6 @@ return {
     i(3, "0.5"), i(4, "column2")
   }, {
     delimiters = "<>"
-  }))}
+  })),
+}
 

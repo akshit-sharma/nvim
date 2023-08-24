@@ -40,8 +40,9 @@ local cmp_action = require('lsp-zero').cmp_action()
 
 cmp.setup({
   mapping = {
+    ['<C-Space>'] = cmp.mapping.complete(),
     ['<C-k>'] = cmp.mapping.confirm({
-      -- behavio = cmp.ConfirmBehavior.Insert,
+      -- behavior = cmp.ConfirmBehavior.Insert,
       select = true
     }),
     ['<C-x><C-k>'] = cmp.mapping.confirm({
@@ -65,6 +66,13 @@ cmp.setup({
       end
     end, { "i", "s" }),
   },
+  sources = cmp.config.sources({
+    { name = 'nvim_lsp' },
+    { name = 'copilot' },
+    { name = 'luasnip' },
+  }, {
+    { name = 'buffer' },
+  }),
 })
 
 require('mason').setup({})
@@ -74,7 +82,7 @@ require('mason-lspconfig').setup({
     'cmake',
     'html',
     'jdtls',
-    'ltex',
+    -- 'ltex',
     'lua_ls',
     'pyright',
     'rust_analyzer',

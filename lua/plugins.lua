@@ -151,7 +151,9 @@ packer.startup({function(use)
       -- Autocompletion
       { 'hrsh7th/nvim-cmp' },     -- Required
       { 'hrsh7th/cmp-nvim-lsp' }, -- Required
-      { 'L3MON4D3/LuaSnip' },     -- Required
+      { 'L3MON4D3/LuaSnip', tag = "v2.*", run = run('luasnip') },     -- Required
+      { 'hrsh7th/cmp-omni'},
+      { 'saadparwaiz1/cmp_luasnip'},
 
       { 'weilbith/nvim-code-action-menu', cmd = 'CodeActionMenu' },
       { 'j-hui/fidget.nvim', config = config('fidget'), tag = "legacy" },
