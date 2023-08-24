@@ -36,7 +36,6 @@ lsp.on_attach(attach)
 lsp.extend_cmp()
 
 local cmp = require('cmp')
-local cmp_action = require('lsp-zero').cmp_action()
 
 cmp.setup({
   mapping = {
@@ -70,10 +69,20 @@ cmp.setup({
     { name = 'nvim_lsp' },
     { name = 'copilot' },
     { name = 'luasnip' },
+    { name = 'path' },
   }, {
     { name = 'buffer' },
   }),
 })
+
+local spellfile = vim.fn.stdpath('config') .. '/spell/ltex.dictionary.en-US.txt'
+
+local words = {}
+if vim.fn.filereadable(spellfile) == 1 then
+  for word in io.open(spellfile, "r"):lines() do
+    table.insert(words, word)
+  end
+end
 
 require('mason').setup({})
 require('mason-lspconfig').setup({
@@ -82,7 +91,7 @@ require('mason-lspconfig').setup({
     'cmake',
     'html',
     'jdtls',
-    -- 'ltex',
+    'ltex',
     'lua_ls',
     'pyright',
     'rust_analyzer',
@@ -97,7 +106,33 @@ require('mason-lspconfig').setup({
     lua_ls = function()
       require'lspconfig'.lua_ls.setup(lsp.nvim_lua_ls())
     end,
+    ltex = function()
+      require'lspconfig'.ltex.setup({
+        on_attach = function(client, bufnr)
+          lsp.default_keymaps({buffer = bufnr, preserve_mappings = false})
+          require'ltex_extra'.setup {
+            load_langs = "en-US",
+            path = vim.fn.stdpath('config') .. '/spell',
+          }
+        end,
+        settings = {
+          ltex = {
+            language = "en-US",
+            dictionary = {
+              ["en-US"] = words,
+            },
+          },
+        },
+      })
+    end,
   },
+})
+
+lsp.set_sign_icons({
+  error = '✘',
+  warn = '▲',
+  hint = '⚑',
+  info = ''
 })
 
 lsp.setup()
