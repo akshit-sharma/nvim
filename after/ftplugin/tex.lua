@@ -1,7 +1,11 @@
 -- Define the keymap in Lua
 local function setup_tex_keymap()
-  vim.api.nvim_set_keymap({'n', 'v'}, 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, noremap = true })
-  vim.api.nvim_set_keymap({'n', 'v'}, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, noremap = true })
+  -- vim.api.nvim_set_keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, noremap = true })
+  -- vim.api.nvim_set_keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, noremap = true })
+  -- vim.api.nvim_set_keymap('v', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, noremap = true })
+  -- vim.api.nvim_set_keymap('v', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, noremap = true })
+  vim.keymap.set({'n', 'v'}, 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, noremap = true })
+  vim.keymap.set({'n', 'v'}, 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, noremap = true })
 end
 
 local function setup_cmp()
