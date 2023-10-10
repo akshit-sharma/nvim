@@ -28,7 +28,18 @@ end
 local lsp = require("lsp-zero").preset({})
 
 local attach = function(client, bufnr)
-  lsp.default_keymaps({buffer = bufnr, preserve_mappings = false})
+  lsp.default_keymaps({buffer = bufnr})
+
+  local opts = {buffer = bufnr}
+  local bind = vim.keymap.set
+
+  bind('n', '<leader>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
+  bind('n', '<leader>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
+  bind('n', '<leader>fm', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+  bind('v', '<leader>fm', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+  bind('v', '<leader>ca', '<cmd>lua vim.lsp.buf.range_code_action()<CR>', opts)
+
+  -- lsp.default_keymaps({buffer = bufnr, preserve_mappings = false})
 end
 
 lsp.on_attach(attach)
@@ -75,13 +86,16 @@ cmp.setup({
   }),
 })
 
-local spellfile = vim.fn.stdpath('config') .. '/spell/ltex.dictionary.en-US.txt'
-
-local words = {}
-if vim.fn.filereadable(spellfile) == 1 then
-  for word in io.open(spellfile, "r"):lines() do
+function ReadSpellFile(filename)
+  local filepath = vim.fn.stdpath('config') .. '/spell/ltex.' .. filename .. '.txt'
+  local words = {}
+  if vim.fn.filereadable(filepath) ~= 1 then
+    return words
+  end
+  for word in io.open(filepath, "r"):lines() do
     table.insert(words, word)
   end
+  return words
 end
 
 require('mason').setup({})
@@ -119,7 +133,13 @@ require('mason-lspconfig').setup({
           ltex = {
             language = "en-US",
             dictionary = {
-              ["en-US"] = words,
+              ["en-US"] = ReadSpellFile('dictionary.en-US'),
+            },
+            disabledRules = {
+              ["en-US"] = ReadSpellFile('disabledRules.en-US'),
+            },
+            hiddenFalsePositives = {
+              ["en-US"] = ReadSpellFile('hiddenFalsePositives.en-US'),
             },
           },
         },
