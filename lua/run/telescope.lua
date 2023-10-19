@@ -1,7 +1,7 @@
 -- https://github.com/nvim-telescope/telescope.nvim
 OK_TELESCOPE, TELESCOPE = pcall(require, "telescope")
 if not OK_TELESCOPE then
-    vim.notify('"nvim-telescope/telescope.nvim" not available', 'error')
+    vim.notify('"nvim-telescope/telescope.nvim" not available', vim.log.levels.ERROR)
     return
 end
 

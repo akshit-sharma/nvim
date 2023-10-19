@@ -138,6 +138,7 @@ packer.startup({function(use)
   --  after = { 'telescope.nvim' },
   --  config = config('goto-preview'),
   --}
+  use {'windwp/nvim-ts-autotag', config=config('autotag')}
 
   use {
     'VonHeikemen/lsp-zero.nvim',
