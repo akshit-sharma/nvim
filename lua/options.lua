@@ -3,8 +3,6 @@ local vimopt = vim.opt
 vimopt.termguicolors = true
 vimopt.updatetime = 300
 
-vimopt.foldenable = false
-
 vimopt.tabstop = 2
 vimopt.shiftwidth = 2
 vimopt.softtabstop = 2
@@ -31,8 +29,12 @@ vimopt.background = "dark"
 
 vimopt.spelllang = "en_us"
 
---vimopt.splitright = true
---vimopt.splitbelow = true
+vimopt.foldlevel = 2
+vimopt.foldcolumn = "2"
+vimopt.foldmarker = "{,}"
+vimopt.foldmethod = "expr"
+vimopt.foldexpr = "nvim_treesitter#foldexpr()"
+
 
 vim.cmd([[
 augroup numbertoggle
