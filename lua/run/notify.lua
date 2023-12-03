@@ -53,9 +53,14 @@ return function()
     local dlevel = notification.level
     local dopts = notification.opts
 
-    dopts.on_open = function(win)
+    local on_open = function(win)
       notifications[opts.title].win = win
+      if opts.on_open then
+        opts.on_open(win)
+      end
     end
+
+    dopts.on_open = on_open
 
     if prevWin and vim.api.nvim_win_is_valid(prevWin) then
       vim.api.nvim_win_close(prevWin, true)
