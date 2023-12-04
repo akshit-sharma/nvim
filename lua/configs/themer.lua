@@ -1,6 +1,7 @@
 return function()
   require'themer'.setup({
-    colorscheme = "monokai_pro",
+    colorscheme = "tokyonight",
+    -- colorscheme = "monokai_pro",
     -- colorscheme = "dracula",
     styles = {
       functionBuiltIn = { style = 'italic' },
