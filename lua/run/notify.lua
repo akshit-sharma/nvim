@@ -26,6 +26,16 @@ return function()
     return false
   end
 
+  local shouldShow = function(msg)
+    if bm_displayed[msg] == true then
+      return false
+    end
+    if bm_displayed[msg] == false then
+      bm_displayed[msg] = true
+    end
+    return true
+  end
+
   local customNotify = function(msg, level, opts)
     opts = type(opts) == 'table' and opts or {}
     opts.title = opts.title or "misc"
@@ -70,14 +80,13 @@ return function()
   end
 
   local customNotifySimple = function(msg, level, opts)
+    if not shouldShow(msg) then
+      return
+    end
     opts = type(opts) == 'table' and opts or {}
     opts.title = opts.title or "misc"
     opts.render = opts.render or "wrapped-compact"
-    local displayer = notify
-    if isShownOnce(msg) then
-      displayer = vim.notify_once
-    end
-    displayer(msg, level, opts)
+    notify(msg, level, opts)
   end
   vim.notify = customNotifySimple
 end
