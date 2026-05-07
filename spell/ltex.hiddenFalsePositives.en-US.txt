@@ -1,1 +1,0 @@
-{"rule":"WHITESPACE_RULE","sentence":"^\\Qlanguage=english\\E$"}
