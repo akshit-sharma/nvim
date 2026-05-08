@@ -39,7 +39,7 @@ function M.setup()
   vim.keymap.set("n", "<A-d>", function()
     local bufnr = vim.api.nvim_get_current_buf()
     local tab_bufs = vim.t.tab_buffers or {}
-    
+
     -- Remove from tab-local list
     local new_list = {}
     for _, b in ipairs(tab_bufs) do
@@ -72,6 +72,15 @@ function M.setup()
     end
     return 'h'
   end, { expr = true, desc = 'Recursive open fold if closed, else move left' })
+
+  local move_opts = { expr = true, silent = true }
+
+  vim.keymap.set('n', 'j', [[v:count == 0 ? 'gj' : 'j']], move_opts)
+  vim.keymap.set('n', 'k', [[v:count == 0 ? 'gk' : 'k']], move_opts)
+
+  vim.keymap.set('n', 'sj', 'zj', { desc = "Jump to next fold" })
+  vim.keymap.set('n', 'sk', 'zk', { desc = "Jump to prev fold" })
+
 end
 
 return M

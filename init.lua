@@ -1,3 +1,8 @@
+
+if vim.loader then
+  vim.loader.enable()
+end
+
 -- ==========================================================================
 -- 1. ARCHITECTURAL CORE (Load first to prevent glitching)
 -- ==========================================================================
@@ -20,24 +25,38 @@ local registry = require('core.registry')
 
 local lazyroot = vim.fn.stdpath("data") .. "/nvimbenchmark/57_nvim_low/lazy"
 local lazypath = lazyroot .. "/lazy.nvim"
+vim.opt.rtp:prepend(lazypath)
+
+-- local ok, lazy = pcall(require, "lazy")
 
 ---@diagnostic disable-next-line:undefined-field
-if not vim.uv.fs_stat(lazypath) then
+-- if not ok and not vim.uv.fs_stat(lazypath) then
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
   vim.fn.mkdir(lazyroot, "p")
   vim.fn.system({
     "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath
   })
+  lazy = require('lazy')
 end
-vim.opt.rtp:prepend(lazypath)
 
-require("lazy").setup({
+require('lazy').setup({
   root = lazyroot,
   spec = {
     { import = "plugins" },
   },
   install = { colorscheme = { "retrobox" } },
   checker = { enabled = false },
+  performance = {
+    cache = { enabled = true },
+    reset_packpath = true, -- Faster than scanning the default packpath
+    rtp = {
+      -- Disable unused builtin plugins to save scan time
+      disabled_plugins = {
+        "gzip", "tarPlugin", "tohtml", "tutor", "zipPlugin",
+      },
+    },
+  },
 })
 
 -- ==========================================================================
@@ -51,13 +70,20 @@ require('core.keymaps').setup()
 -- Initialize High-Performance Features
 -- These utilize the registry to respect the Global Perf Guard
 require('core.folding').setup()
-require('core.features_init')
 
--- LSP and UI Components
-require('lsp')
-require('ui.statusline').setup()
-require('ui.tabline').setup()
-require('ui.winbar').setup()
+vim.schedule(function()
+  require('core.features_init')
+  require('ui.statusline').setup()
+  require('ui.tabline').setup()
+  require('ui.winbar').setup()
+  require('lsp')
+
+  local schema = require('core.schema')
+  local has_config, user_tools = pcall(require, "configs.tools")
+  if has_config then
+    schema.Tools = vim.tbl_deep_extend("force", schema.Tools, user_tools)
+  end
+end)
 
 -- ==========================================================================
 -- 4. THEME & FINAL POLISH

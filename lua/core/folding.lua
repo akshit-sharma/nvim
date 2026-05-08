@@ -33,12 +33,12 @@ function _G.custom_fold_text()
   -- Dynamic Comment Detection
   local cms = vim.bo.commentstring:gsub("%%s", ""):gsub("%s", "")
   local cleaned = line:gsub("^%s*", "")
-                      :gsub("%s*{%s*$", "")
-                      :gsub("%s*=%s*{%s*$", "") -- Cleans up 'std::vector a = {'
-                      :gsub("%s*;%s*$", "")
+    :gsub("%s*{%s*$", "")
+    :gsub("%s*=%s*{%s*$", "") -- Cleans up 'std::vector a = {'
+    :gsub("%s*;%s*$", "")
 
   local kind = "default"
-  
+
   -- Check for Comments
   if cleaned:find("^" .. vim.pesc(cms)) or cleaned:find("^/%*") then
     kind = "comment"
@@ -55,12 +55,12 @@ function _G.custom_fold_text()
 
   local icon = Config.icons[kind] or Config.icons.default
   local suffix = string.format(" ⋯ [%d lines]", line_count)
-  
+
   -- Add specific labels for clarity
   if kind == "comment" then
     return icon .. " DOCS: " .. cleaned .. suffix
   end
-  
+
   return icon .. " " .. cleaned .. suffix
 end
 
@@ -71,18 +71,16 @@ local function apply_folds(buf)
   local supported = { "cpp", "c", "python", "lua" }
   if not vim.tbl_contains(supported, ft) then return end
 
-  vim.schedule(function()
-    local win = vim.fn.bufwinid(buf)
-    if win == -1 then return end
+  local win = vim.fn.bufwinid(buf)
+  if win == -1 then return end
 
-    vim.wo[win].foldmethod = "expr"
-    vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
-    
-    vim.wo[win].foldtext = "v:lua.custom_fold_text()"
-    
-    vim.wo[win].foldenable = true
-    vim.wo[win].foldlevel = 0
-  end)
+  vim.wo[win].foldmethod = "expr"
+  vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+
+  vim.wo[win].foldtext = "v:lua.custom_fold_text()"
+
+  vim.wo[win].foldenable = true
+  vim.wo[win].foldlevel = 0
 end
 
 function M.setup()

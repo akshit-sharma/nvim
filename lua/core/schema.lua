@@ -18,4 +18,18 @@ M.TaskID = setmetatable({
   end
 })
 
+M.Tools = {
+  essentials = {
+    git = "Plugin management and version control tracking.",
+    make = "Required for compiling Treesitter parsers and C++ projects.",
+  },
+  lsp = {
+    clangd = "C/C++ language intelligence and navigation.",
+    ["lua-language-server"] = "Lua development and Neovim API completion.",
+  },
+  -- Placeholder for other categories that can be extended
+  formatters = {},
+  debuggers = {},
+}
+
 return M
