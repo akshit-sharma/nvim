@@ -23,22 +23,22 @@ local registry = require('core.registry')
 -- 2. PLUGIN MANAGEMENT (Lazy.nvim)
 -- ==========================================================================
 
-local lazyroot = vim.fn.stdpath("data") .. "/nvimbenchmark/57_nvim_low/lazy"
+local lazyroot = vim.fn.stdpath("data") .. "nvim" -- /nvimbenchmark/57_nvim_low/lazy"
 local lazypath = lazyroot .. "/lazy.nvim"
 vim.opt.rtp:prepend(lazypath)
 
 -- local ok, lazy = pcall(require, "lazy")
 
----@diagnostic disable-next-line:undefined-field
--- if not ok and not vim.uv.fs_stat(lazypath) then
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
-  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
-  vim.fn.mkdir(lazyroot, "p")
-  vim.fn.system({
-    "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath
-  })
-  lazy = require('lazy')
-end
+-- ---@diagnostic disable-next-line:undefined-field
+-- -- if not ok and not vim.uv.fs_stat(lazypath) then
+-- if not (vim.uv or vim.loop).fs_stat(lazypath) then
+--   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+--   vim.fn.mkdir(lazyroot, "p")
+--   vim.fn.system({
+--     "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath
+--   })
+--   lazy = require('lazy')
+-- end
 
 require('lazy').setup({
   root = lazyroot,
