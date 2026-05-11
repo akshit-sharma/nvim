@@ -16,10 +16,12 @@ local function update_bus()
   local progress = vim.lsp.status()
   local names = {}
   for _, c in ipairs(clients) do table.insert(names, c.name) end
-  
-  local msg = "[" .. table.concat(names, ",") .. "]"
+  local client_names = "[" .. table.concat(names, ",") .. "]"
+
   if progress ~= "" then
-    msg = msg .. "  " .. progress
+    taskbus.set(ids.LSP, client_names .. "  " .. progress)
+  else
+    taskbus.set(ids.LSP, client_names .. " ") -- Simple checkmark when idle
   end
 
   taskbus.set(ids.LSP, msg)
@@ -27,7 +29,7 @@ end
 
 function M.setup()
   local group = vim.api.nvim_create_augroup("LspBusUpdater", { clear = true })
-  
+
   -- Listen to LSP events: Progress, Attach, and Detach
   vim.api.nvim_create_autocmd({ "LspProgress", "LspAttach", "LspDetach", "BufEnter" }, {
     group = group,

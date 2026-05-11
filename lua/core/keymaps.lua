@@ -47,7 +47,7 @@ function M.setup()
     end
     vim.t.tab_buffers = new_list
 
-    -- Logic: If there are other buffers in this tab, switch to one. 
+    -- Logic: If there are other buffers in this tab, switch to one.
     -- Otherwise, if it's the last buffer in the tab, close the tab or open empty.
     if #new_list > 0 then
       vim.api.nvim_set_current_buf(new_list[#new_list])
@@ -61,8 +61,8 @@ function M.setup()
   end, { desc = "Smart Close Buffer" })
 
   -- 5. TAB MANAGEMENT
-  vim.keymap.set("n", "tn", ":tabnew<CR>", { desc = "New Layout" })
-  vim.keymap.set("n", "td", ":tabclose<CR>", { desc = "Close Layout" })
+  vim.keymap.set("n", "<leader>tn", ":tabnew<CR>", { desc = "New Layout" })
+  vim.keymap.set("n", "<leader>td", ":tabclose<CR>", { desc = "Close Layout" })
 
   -- Add to lua/core/keymaps.lua
   vim.keymap.set('n', 'h', function()
@@ -77,10 +77,6 @@ function M.setup()
 
   vim.keymap.set('n', 'j', [[v:count == 0 ? 'gj' : 'j']], move_opts)
   vim.keymap.set('n', 'k', [[v:count == 0 ? 'gk' : 'k']], move_opts)
-
-  vim.keymap.set('n', 'sj', 'zj', { desc = "Jump to next fold" })
-  vim.keymap.set('n', 'sk', 'zk', { desc = "Jump to prev fold" })
-
 end
 
 return M

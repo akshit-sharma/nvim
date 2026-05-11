@@ -1,14 +1,22 @@
 local M = {}
 
 M.TaskID = setmetatable({
-  VCS      = "vcs",
-  DIAGS    = "diagnostics",
-  FOLDING  = "folding",
-  WORKSPACE  = "workspace",
-  DIFF       = "diff",
-  TS_STATUS  = "treesitter_status",
-  BREADCRUMBS = "breadcrumbs",
-  LSP         = "lsp_status",
+  VCS          = "vcs",
+  CLEANUP      = "cleanup",
+  DIAGS        = "diagnostics",
+  DIAGS_ICONS  = "diagnostics_icons",
+  FOLDING      = "folding",
+  WORKSPACE    = "workspace",
+  DIFF         = "diff",
+  TS_STATUS    = "treesitter_status",
+  BREADCRUMBS  = "breadcrumbs",
+  LSP          = "lsp_status",
+  INDENT       = "indent",
+  HINTS_DOCS   = "hint_docs",
+  HINTS_PARAMS = "hint_params",
+  HINTS_COMPL  = "hint_complete",
+  SEARCH_ROOT  = "search_root",
+  FILE_LIST    = "file_list",
 }, {
   __index = function(_, k)
     error(string.format("!! ARCHITECT ERROR: TaskID '%s' is not defined in schema !!", k))

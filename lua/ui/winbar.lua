@@ -16,8 +16,14 @@ function M.get()
   end
 
   local breadcrumbs = taskbus.get(ids.BREADCRUMBS)
-  local diags       = taskbus.get(ids.DIAGS)
+  local diags       = taskbus.get(ids.DIAGS_ICONS)
   local ts_status   = taskbus.get(ids.TS_STATUS)
+  local lsp_status  = taskbus.get(ids.LSP)
+
+  local h_doc   = taskbus.get(ids.HINTS_DOCS)
+  local h_param = taskbus.get(ids.HINTS_PARAMS)
+  local h_compl = taskbus.get(ids.HINTS_COMPL)
+  local hints = string.format("%%#WinbarHints#%s%s%s%%*", h_doc, h_param, h_compl)
 
   local file_path = vim.fn.expand("%:t")
   local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
@@ -30,10 +36,14 @@ function M.get()
 
   cache.val = table.concat({
     left,
-    "%=", 
+    "%=",
+    hints,
+    " ",
+    lsp_status,
+    " | ",
     diags,
     " ", ts_status,
-    " %p%% ", 
+    " %p%% ",
     " %l:%c ",
   })
 

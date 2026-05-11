@@ -15,7 +15,6 @@ function M.get()
   local workspace = taskbus.get(ids.WORKSPACE)
   local vcs       = taskbus.get(ids.VCS)
   local diff      = taskbus.get(ids.DIFF)
-  local lsp       = taskbus.get(ids.LSP)
   local diags     = taskbus.get(ids.DIAGS)
 
   cache.val = table.concat({
@@ -25,7 +24,6 @@ function M.get()
     " %= ", -- Spacer to center-align
     " %f ", -- File path
     " %= ", -- Spacer to right-align
-    lsp,
     " ", diags,
     " | %l:%c ", -- Line:Column
   })

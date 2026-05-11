@@ -65,6 +65,7 @@ function _G.custom_fold_text()
 end
 
 local function apply_folds(buf)
+  if not buf or not vim.api.nvim_buf_is_valid(buf) then return end
   if vim.b[buf].perf_mode then return end
 
   local ft = vim.bo[buf].filetype

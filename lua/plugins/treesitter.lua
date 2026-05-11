@@ -3,7 +3,7 @@ return {
   dependencies = {
     { 'nvim-treesitter/nvim-treesitter-textobjects' },
   },
-  branch = 'master',
+  branch = 'main',
   build = ':TSUpdate',
   config = function()
     local filetypes = { "cpp", "lua", "python" }

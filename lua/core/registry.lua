@@ -29,6 +29,7 @@ function M.register_feature(id, spec)
         end
 
         vim.schedule(function()
+          if not vim.api.nvim_buf_is_valid(ev.buf) then return end
           local result = spec.resolver(ev.buf)
           if result then
             taskbus.set(id, result)

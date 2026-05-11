@@ -19,36 +19,45 @@ registry.register_feature(ids.DIAGS, {
   resolver = function(buf)
     if not vim.api.nvim_buf_is_valid(buf) then return "" end
 
-    -- Native 0.10+ diagnostic count is faster than get()
     local counts = vim.diagnostic.count(buf)
     local err  = counts[vim.diagnostic.severity.ERROR] or 0
     local warn = counts[vim.diagnostic.severity.WARN] or 0
     local info = counts[vim.diagnostic.severity.INFO] or 0
     local hint = counts[vim.diagnostic.severity.HINT] or 0
 
-    local parts = {}
+    local stl_parts = {}   -- Statusline (Numbers Only)
+    local winbar_parts = {} -- Winbar (Icons Only)
 
-    -- 1. Errors: High Criticality
-    if err > 0 then 
-      table.insert(parts, "%#StatuslineError# " .. err .. "%*") 
+    -- 1. Errors
+    if err > 0 then
+      table.insert(stl_parts, "%#StatuslineError# " .. err .. " %*")
+      table.insert(winbar_parts, "%#StatuslineError# " .. err .. "%*")
     end
 
-    -- 2. Warnings: Potential Issues
-    if warn > 0 then 
-      table.insert(parts, "%#StatuslineWarn# " .. warn .. "%*") 
+    -- 2. Warnings
+    if warn > 0 then
+      table.insert(stl_parts, "%#StatuslineWarn# " .. warn .. " %*")
+      table.insert(winbar_parts, "%#StatuslineWarn# " .. warn .. "%*")
     end
 
-    -- 3. Info: Contextual Data
-    if info > 0 then 
-      table.insert(parts, "%#StatuslineInfo# " .. info .. "%*") 
+    -- 3. Info
+    if info > 0 then
+      table.insert(stl_parts, "%#StatuslineInfo# " .. info .. " %*")
+      table.insert(winbar_parts, "%#StatuslineInfo# " .. info .. "%*")
     end
 
-    -- 4. Hints: Refactoring/Improvements
-    if hint > 0 then 
-      table.insert(parts, "%#StatuslineHint#󰌵 " .. hint .. "%*") 
+    -- 4. Hints
+    if hint > 0 then
+      table.insert(stl_parts, "%#StatuslineHint# " .. hint .. " %*")
+      table.insert(winbar_parts, "%#StatuslineHint#󰌵 " .. hint .. "%*")
     end
 
-    return #parts > 0 and table.concat(parts, " ") or "%#StatuslineDiagsOk#󰄬 OK%*"
+    -- Update the secondary ID for icons manually
+    local icon_string = table.concat(winbar_parts, " ")
+    require("core.taskbus").set(ids.DIAGS_ICONS, icon_string)
+
+    -- Return the number-only version for the primary ID
+    return #stl_parts > 0 and table.concat(stl_parts, " ") or ""
   end
 })
 
@@ -107,13 +116,25 @@ registry.register_feature(ids.BREADCRUMBS, {
   is_heavy = false,
   events = { "CursorHold", "BufWinEnter", "WinEnter", "VimResized" },
   resolver = function(buf)
+    local winid = vim.api.nvim_get_current_win()
+    if vim.api.nvim_win_get_config(winid).relative ~= "" then
+      return nil
+    end
+    -- 1. Ensure parser is synchronized
+    local buftype = vim.bo[buf].buftype
+    if buftype ~= "" then return "" end
+
+    if vim.api.nvim_win_get_config(0).relative ~= "" then return nil end
+
     local ok, parser = pcall(vim.treesitter.get_parser, buf)
     if not ok or not parser then return "" end
 
-    -- 1. Determine the "Space Budget"
-    -- We get the current window width and reserve space for the filename and status icons
+    -- Force a parse to sync the tree with the current buffer state immediately
+    pcall(parser.parse, parser, { lnum = 0, count = vim.api.nvim_buf_line_count(buf) })
+
+    -- Determine the "Space Budget"
     local win_width = vim.api.nvim_win_get_width(0)
-    local available_width = win_width - 30 -- Subtracting ~30 for filename, diags, and percentage
+    local available_width = win_width - 30
 
     local node = vim.treesitter.get_node()
     local nodes_found = {}
@@ -131,7 +152,22 @@ registry.register_feature(ids.BREADCRUMBS, {
       function_declaration = "󰊕 ",
     }
 
-    -- 2. First Pass: Collect all valid nodes
+    -- HELPER: Safe Text Extraction (The 0.12 Fix)
+    local function get_safe_text(n)
+      if not n then return nil end
+      -- Check if the node's range is still valid for the current buffer line count
+      local s_row, _, e_row, _ = n:range()
+      local line_count = vim.api.nvim_buf_line_count(buf)
+
+      -- If the node refers to a line that no longer exists, return nil to avoid OOB error
+      if s_row >= line_count or e_row >= line_count then return nil end
+
+      -- Wrap in pcall to catch any remaining internal Treesitter 'range' nil glitches
+      local status, text = pcall(vim.treesitter.get_node_text, n, buf)
+      return status and text or nil
+    end
+
+    -- First Pass: Collect all valid nodes
     while node do
       local type = node:type()
       if icons[type] then
@@ -142,14 +178,12 @@ registry.register_feature(ids.BREADCRUMBS, {
 
     if #nodes_found == 0 then return "" end
 
-    -- 3. Calculate dynamic length per segment
-    -- If we have 4 levels in a 100-char window, each gets ~17 chars.
+    -- Calculate dynamic length per segment
     local segment_count = #nodes_found
     local max_len = math.max(10, math.floor(available_width / segment_count))
-
     local breadcrumbs = {}
 
-    -- 4. Second Pass: Extract and Truncate text based on calculated max_len
+    -- Second Pass: Extract and Truncate text
     for _, n in ipairs(nodes_found) do
       local type = n:type()
       local icon = icons[type]
@@ -166,13 +200,14 @@ registry.register_feature(ids.BREADCRUMBS, {
       local field = field_map[type]
       local target_node = field and n:field(field)[1] or nil
 
-      if target_node then
-        name = vim.treesitter.get_node_text(target_node, buf)
-      else
+      -- Use the safe wrapper instead of calling vim.treesitter.get_node_text directly
+      name = get_safe_text(target_node or n) or ""
+
+      if name == "" and not target_node then
         for child in n:iter_children() do
           local c_type = child:type()
           if c_type == "identifier" or c_type == "name" then
-            name = vim.treesitter.get_node_text(child, buf)
+            name = get_safe_text(child) or ""
             break
           end
         end

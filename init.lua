@@ -23,22 +23,20 @@ local registry = require('core.registry')
 -- 2. PLUGIN MANAGEMENT (Lazy.nvim)
 -- ==========================================================================
 
-local lazyroot = vim.fn.stdpath("data") .. "nvim" -- /nvimbenchmark/57_nvim_low/lazy"
+local lazyroot = vim.fn.stdpath("data") .. "/nvimbenchmark/57_nvim_low/lazy"
 local lazypath = lazyroot .. "/lazy.nvim"
 vim.opt.rtp:prepend(lazypath)
 
--- local ok, lazy = pcall(require, "lazy")
+-- git clone --filter=blob:none --branch=stable https://github.com/folke/lazy.nvim.git ~/.config/57_nvim_low
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+  local lazyrepo = "https://github.com/folke/lazy.nvim.git"
+  vim.fn.mkdir(lazyroot, "p")
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath
+  })
+  lazy = require('lazy')
+end
 
--- ---@diagnostic disable-next-line:undefined-field
--- -- if not ok and not vim.uv.fs_stat(lazypath) then
--- if not (vim.uv or vim.loop).fs_stat(lazypath) then
---   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
---   vim.fn.mkdir(lazyroot, "p")
---   vim.fn.system({
---     "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath
---   })
---   lazy = require('lazy')
--- end
 
 require('lazy').setup({
   root = lazyroot,
@@ -73,10 +71,12 @@ require('core.folding').setup()
 
 vim.schedule(function()
   require('core.features_init')
+  require('core.cleanup').setup()
+  require('core.indent').setup()
   require('ui.statusline').setup()
   require('ui.tabline').setup()
   require('ui.winbar').setup()
-  require('lsp')
+  require('lsp').setup()
 
   local schema = require('core.schema')
   local has_config, user_tools = pcall(require, "configs.tools")
@@ -90,3 +90,4 @@ end)
 -- ==========================================================================
 require('ui.highlights').setup()
 vim.cmd("colorscheme retrobox")
+

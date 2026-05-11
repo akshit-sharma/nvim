@@ -6,6 +6,11 @@ return {
     entry_prefix = " ",
     sorting_strategy = "ascending",
     layout_state = "vertical",
+    preview = {
+      filesize_limit = 0.5, -- MB: Do not preview files larger than 500KB
+      timeout = 250,    -- ms: If the previewer hangs, kill it quickly
+      msg_bg_fillchar = "╱",
+    },
     layout_config = {
       flex = {
         flip_columns = 125,
@@ -26,7 +31,11 @@ return {
       height = 0.80,
     },
     mappings = {
-      n = { ["q"] = function(...) require("telescope.actions").close(...) end },
+      i = { ["<C-q>"] = function(prompt_bufnr) require("trouble.sources.telescope").open(prompt_bufnr) end, },
+      n = {
+        ["q"] = function(...) require("telescope.actions").close(...) end,
+        ["<C-q>"] = function(prompt_bufnr) require("trouble.sources.telescope").open(prompt_bufnr) end,
+      },
     },
   },
 }

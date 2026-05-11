@@ -3,12 +3,17 @@ local M = {}
 
 -- 1. Static Configuration
 -- Map server names to their config modules (e.g., lua/lsp/clangd.lua)
-local servers = {
-  clangd   = require('lsp.clangd'),
-  lua_ls   = require('lsp.lua_ls'),
-  linux    = require('lsp.linux'),
-  embedded = require('lsp.embedded'),
-}
+vim.lsp.config['clangd'] = require('lsp.clangd')
+vim.lsp.config['lua_ls'] = require('lsp.lua_ls')
+vim.lsp.config['linux'] = require('lsp.linux')
+vim.lsp.config['embedded'] = require('lsp.embedded')
+
+vim.lsp.enable({
+  'clangd',
+  'lua_ls',
+  'linux',
+  'embedded',
+})
 
 function M.setup()
   -- Apply diagnostic UI globally (Zero-glitch icons)
@@ -74,7 +79,7 @@ function M.setup()
 
       -- 3. Capability-Based Feature Activation
       -- Only enable features the server actually supports
-      if client.supports_method('textDocument/completion') then
+      if client:supports_method('textDocument/completion') then
         vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = false })
 
         vim.keymap.set('i', '<C-Space>', function()
@@ -82,17 +87,11 @@ function M.setup()
         end, { buffer = ev.buf, desc = "LSP Completion" })
       end
 
-      if client.supports_method('textDocument/inlayHint') then
+      if client:supports_method('textDocument/inlayHint') then
         vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
       end
     end,
   })
-
-  -- 5. Enable the Servers
-  for name, config in pairs(servers) do
-    vim.lsp.config[name] = config
-    vim.lsp.enable(name)
-  end
 end
 
 return M

@@ -26,6 +26,8 @@ function M.setup()
     }
   }
 
+  local stl_bg = "#282828"
+
   local p = is_dark and colors.dark or colors.light
 
   -- 1. Status & Winbar (VCS, Treesitter)
@@ -41,10 +43,10 @@ function M.setup()
   vim.api.nvim_set_hl(0, "WinBarFile",      { fg = p.blue, bold = true })
 
   -- 3. Diagnostics (Sync with Winbar labels)
-  vim.api.nvim_set_hl(0, "StatuslineError", { fg = p.red, bold = true })
-  vim.api.nvim_set_hl(0, "StatuslineWarn",  { fg = p.yellow, bold = true })
-  vim.api.nvim_set_hl(0, "StatuslineInfo",  { fg = p.blue })
-  vim.api.nvim_set_hl(0, "StatuslineHint",  { fg = p.fg_alt })
+  vim.api.nvim_set_hl(0, "StatuslineError", { fg = p.red, bg = stl_bg, bold = true })
+  vim.api.nvim_set_hl(0, "StatuslineWarn",  { fg = p.yellow, bg = stl_bg, bold = true })
+  vim.api.nvim_set_hl(0, "StatuslineInfo",  { fg = p.blue, bg = stl_bg, })
+  vim.api.nvim_set_hl(0, "StatuslineHint",  { fg = p.fg_alt, bg = stl_bg, })
 
   -- 4. Tabline (Unique Path Highlighting)
   -- Active tab gets the main blue color; inactive stays gray
