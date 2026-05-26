@@ -1,5 +1,11 @@
 -- lua/core/options.lua
 
+-- Disable legacy remote provider detection (Saves ~52ms on Python files)
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider    = 0
+vim.g.loaded_node_provider    = 0
+vim.g.loaded_perl_provider    = 0
+
 -- 1. Performance & Latency Essentials
 vim.opt.updatetime = 250       -- Faster completion/diagnostic response (default is 4000ms)
 vim.opt.timeoutlen = 300       -- Faster key-mapping response
@@ -33,10 +39,14 @@ vim.opt.splitright = true      -- Horizontal splits open to the right
 vim.opt.splitbelow = true      -- Vertical splits open below
 
 -- 6. Baseline Folding (CHEAP FALLBACK)
--- We set this to 'indent' as a baseline. 
+-- We set this to 'indent' as a baseline.
 -- The 'folding.lua' module will upgrade this to 'expr' for TS files.
 vim.opt.fillchars:append({ fold = " " })
+vim.opt.viewoptions = { "folds", "cursor" }
 vim.opt.foldmethod = "indent"
-vim.opt.foldlevel  = 99
-vim.opt.foldopen = "hor,mark,percent,quickfix,search,tag,undo"
 vim.opt.foldminlines = 1
+vim.opt.foldlevel  = 99
+
+vim.opt.viewoptions = { "folds", "cursor" }
+
+vim.opt.foldopen = "hor,mark,percent,quickfix,search,tag,undo"

@@ -73,6 +73,14 @@ function M.setup()
     return 'h'
   end, { expr = true, desc = 'Recursive open fold if closed, else move left' })
 
+  vim.keymap.set('n', 'l', function()
+    -- foldclosed returns the start line of the fold if closed, else -1
+    if vim.fn.foldclosed(vim.fn.line('.')) ~= -1 then
+      return 'zO'
+    end
+    return 'l'
+  end, { expr = true, desc = 'Recursive open fold if closed, else move left' })
+
   local move_opts = { expr = true, silent = true }
 
   vim.keymap.set('n', 'j', [[v:count == 0 ? 'gj' : 'j']], move_opts)

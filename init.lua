@@ -23,7 +23,7 @@ local registry = require('core.registry')
 -- 2. PLUGIN MANAGEMENT (Lazy.nvim)
 -- ==========================================================================
 
-local lazyroot = vim.fn.stdpath("data") .. "/nvimbenchmark/57_nvim_low/lazy"
+local lazyroot = vim.fn.stdpath("data") .. "/nvim/lazy"
 local lazypath = lazyroot .. "/lazy.nvim"
 vim.opt.rtp:prepend(lazypath)
 

@@ -92,6 +92,39 @@ function M.setup()
       apply_folds(buf)
     end,
   })
+
+  local fold_view_group = vim.api.nvim_create_augroup("FoldViewStateConsistency", { clear = true })
+  -- Triggered right before leaving a window or buffer split
+  vim.api.nvim_create_autocmd({ "BufWinLeave", "WinLeave" }, {
+    group = fold_view_group,
+    pattern = "*",
+    callback = function(ev)
+      -- Do not save views for terminal, oil, or special non-file buffers
+      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
+        return
+      end
+      -- Use silent! to prevent errors if the directory isn't writable or a buffer has no name
+      vim.cmd("silent! mkview")
+    end,
+  })
+  -- Triggered when jumping back to a buffer
+  vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
+    group = fold_view_group,
+    pattern = "*",
+    callback = function(ev)
+      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
+        return
+      end
+
+      -- We schedule loading the view to execute after the Registry's main event loop
+      -- finishes setting foldmethod="expr" and resetting foldlevel.
+      vim.schedule(function()
+        if vim.api.nvim_buf_is_valid(ev.buf) then
+          vim.cmd("silent! loadview")
+        end
+      end)
+    end,
+  })
 end
 
 return M
