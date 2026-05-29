@@ -68,7 +68,7 @@ function M.smart_format()
   local clients = vim.lsp.get_clients({ bufnr = bufnr })
   local has_lsp = false
   for _, client in ipairs(clients) do
-    if client.supports_method("textDocument/formatting") then
+    if client:supports_method("textDocument/formatting") then
       has_lsp = true
       break
     end

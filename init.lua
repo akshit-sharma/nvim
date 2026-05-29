@@ -23,18 +23,18 @@ local registry = require('core.registry')
 -- 2. PLUGIN MANAGEMENT (Lazy.nvim)
 -- ==========================================================================
 
-local lazyroot = vim.fn.stdpath("data") .. "/nvim/lazy"
+local lazyroot = vim.fn.stdpath("data") .. "/nvimbenchmark/58_nvim_obsn/lazy"
 local lazypath = lazyroot .. "/lazy.nvim"
 vim.opt.rtp:prepend(lazypath)
 
--- git clone --filter=blob:none --branch=stable https://github.com/folke/lazy.nvim.git ~/.config/57_nvim_low
+-- git clone --filter=blob:none --branch=stable https://github.com/folke/lazy.nvim.git ~/.config/58_nvim_obsn
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
   vim.fn.mkdir(lazyroot, "p")
   vim.fn.system({
     "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath
   })
-  lazy = require('lazy')
+  require('lazy')
 end
 
 

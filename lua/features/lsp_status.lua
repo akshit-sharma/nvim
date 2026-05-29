@@ -24,7 +24,7 @@ local function update_bus()
     taskbus.set(ids.LSP, client_names .. " ") -- Simple checkmark when idle
   end
 
-  taskbus.set(ids.LSP, msg)
+  -- taskbus.set(ids.LSP, msg)
 end
 
 function M.setup()

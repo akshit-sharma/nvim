@@ -28,11 +28,12 @@ vim.opt.mouse      = "a"       -- Enable mouse for those "just in case" moments
 vim.opt.scrolloff  = 8         -- Keep 8 lines of context when scrolling
 
 -- 4. Indentation & Tabs (Standard Project Rules)
-vim.opt.expandtab   = true      -- Convert tabs to spaces
-vim.opt.shiftwidth  = 2         -- 1 tab = 2 spaces
-vim.opt.tabstop     = 2
-vim.opt.autoindent = true
-vim.opt.smartindent = false
+vim.opt.expandtab    = true      -- Convert tabs to spaces
+vim.opt.shiftwidth   = 2         -- 1 tab = 2 spaces
+vim.opt.tabstop      = 2
+vim.opt.conceallevel = 2
+vim.opt.autoindent   = true
+vim.opt.smartindent  = false
 
 -- 5. Split Management
 vim.opt.splitright = true      -- Horizontal splits open to the right

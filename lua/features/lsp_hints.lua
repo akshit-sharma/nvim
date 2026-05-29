@@ -17,7 +17,7 @@ local function update_hints()
   -- We check if any attached client supports hover
   local has_hover = false
   for _, client in ipairs(clients) do
-    if client.supports_method("textDocument/hover") then
+    if client:supports_method("textDocument/hover") then
       has_hover = true; break
     end
   end
@@ -32,7 +32,7 @@ local function update_hints()
 
   if before_cursor:match("%(.-$") then
     for _, client in ipairs(clients) do
-      if client.supports_method("textDocument/signatureHelp") then
+      if client:supports_method("textDocument/signatureHelp") then
         params_available = true; break
       end
     end

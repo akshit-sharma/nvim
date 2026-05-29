@@ -65,8 +65,8 @@ function M.setup()
       vim.keymap.set('n', 'gD', vim.lsp.buf.declaration,     opts)
       vim.keymap.set('n', 'K',  vim.lsp.buf.hover,           opts)
       vim.keymap.set('n', 'gO', vim.lsp.buf.document_symbol, opts)
-      vim.keymap.set('n', '[d', vim.diagnostic.goto_prev,    opts)
-      vim.keymap.set('n', ']d', vim.diagnostic.goto_next,    opts)
+      vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1, float = true }) end, opts)
+      vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count =  1, float = true }) end,    opts)
 
       -- BLOCK: If Performance Guard is active, limit LSP intensity
       if vim.b[bufnr].perf_mode then

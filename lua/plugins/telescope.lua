@@ -84,6 +84,7 @@ return {
     end, desc = "Search Particular Path" },
 
     -- Standard Leader-only Builtins
+    { "<space><space>", function() require("telescope.builtin").buffers() end,     desc = "Buffers" },
     { "<leader><space>", function() require("telescope.builtin").buffers() end,     desc = "Buffers" },
     { "<leader>sh",      function() require("telescope.builtin").help_tags() end,   desc = "Search Help" },
     { "<leader>tt",      function() require("telescope.builtin").builtin() end,     desc = "Telescope Builtins" },
