@@ -6,86 +6,61 @@ return {
   branch = 'main',
   build = ':TSUpdate',
   config = function()
-    local filetypes = { "cpp", "lua", "python" }
-    ---@diagnostic disable-next-line:missing-fields
-    require('nvim-treesitter.configs').setup {
-      ensure_installed = filetypes,
-      sync_install = false,
-      auto_install = true,
-      highlight = { enable = true, },
-      indent = { enable = true, },
-      incremental_selection = { enable = true, },
+    -- Initialize the main treesitter plugin (main branch)
+    require('nvim-treesitter').setup({})
 
-      modules = {},
-      ignore_install = {},
-
-      textobjects = {
-        select = {
-          enable = true, lookahead = true,
-          keymaps = {
-            -- You can use the capture groups defined in textobjects.scm
-            ["a="] = { query = "@assignment.outer", desc = "Select outer part of an assignment" },
-            ["i="] = { query = "@assignment.inner", desc = "Select inner part of an assignment" },
-            ["l="] = { query = "@assignment.lhs", desc = "Select left hand side of an assignment" },
-            ["r="] = { query = "@assignment.rhs", desc = "Select right hand side of an assignment" },
-            ["aa"] = { query = "@parameter.outer", desc = "Select outer part of a parameter/argument" },
-            ["ia"] = { query = "@parameter.inner", desc = "Select inner part of a parameter/argument" },
-            ["ai"] = { query = "@conditional.outer", desc = "Select outer part of a conditional" },
-            ["ii"] = { query = "@conditional.inner", desc = "Select inner part of a conditional" },
-            ["al"] = { query = "@loop.outer", desc = "Select outer part of a loop" },
-            ["il"] = { query = "@loop.inner", desc = "Select inner part of a loop" },
-            ["af"] = { query = "@call.outer", desc = "Select outer part of a function call" },
-            ["if"] = { query = "@call.inner", desc = "Select inner part of a function call" },
-            ["am"] = { query = "@function.outer", desc = "Select outer part of a method/function definition" },
-            ["im"] = { query = "@function.inner", desc = "Select inner part of a method/function definition" },
-            ["ac"] = { query = "@class.outer", desc = "Select outer part of a class" },
-            ["ic"] = { query = "@class.inner", desc = "Select inner part of a class" },
-          },
-          selection_modes = {
-            ['@parameter.outer'] = 'v', -- charwise
-            ['@function.outer'] = 'V',  -- linewise
-            ['@class.outer'] = '<c-v>', -- blockwise
-          },
-          move = {
-            enable = true,
-            set_jumps = true, -- whether to set jumps in the jumplist
-            goto_next_start = {
-              [']m'] = '@function.outer',
-              [']]'] = { query = '@class.outer', desc = 'Next class start' },
-              [']o'] = '@loop.*',
-              [']s'] = { query = '@local.scope', query_groups = 'locals', desc = 'Next scope' },
-              [']z'] = { query = '@fold', query_groups = 'folds', desc = 'Next fold' },
-            },
-            goto_next_end = {
-              [']M'] = '@function.outer',
-              [']['] = '@class.outer',
-            },
-            goto_previous_start = {
-              ['[m'] = '@function.outer',
-              ['[['] = '@class.inner',
-            },
-            goto_previous_end = {
-              ['[M'] = '@function.outer',
-              ['[]'] = '@class.outer',
-            },
-            goto_next = {
-              [']i'] = '@conditional.outer',
-            },
-            goto_previous = {
-              ['[i'] = '@conditional.outer',
-            },
-          },
+    -- Initialize textobjects
+    require('nvim-treesitter-textobjects').setup({
+      select = {
+        lookahead = true,
+        selection_modes = {
+          ['@parameter.outer'] = 'v', -- charwise
+          ['@function.outer'] = 'V',  -- linewise
+          ['@class.outer'] = '<c-v>', -- blockwise
         },
       },
-      folding = {
-        enable = true,
-        node_type_filters = {
-          python = { 'class_definition' },
-          cpp = { 'class_definition' },
-          c = { 'struct_specifier', 'union_specifier' },
-          -- lua = { 'table_constructor' },
-        }
-      }
-    }
+      move = {
+        set_jumps = true,
+      },
+    })
+
+    -- Keymaps for selection
+    local select = require('nvim-treesitter-textobjects.select')
+    vim.keymap.set({ "x", "o" }, "a=", function() select.select_textobject("@assignment.outer", "textobjects") end, { desc = "Select outer part of an assignment" })
+    vim.keymap.set({ "x", "o" }, "i=", function() select.select_textobject("@assignment.inner", "textobjects") end, { desc = "Select inner part of an assignment" })
+    vim.keymap.set({ "x", "o" }, "l=", function() select.select_textobject("@assignment.lhs", "textobjects") end, { desc = "Select left hand side of an assignment" })
+    vim.keymap.set({ "x", "o" }, "r=", function() select.select_textobject("@assignment.rhs", "textobjects") end, { desc = "Select right hand side of an assignment" })
+    vim.keymap.set({ "x", "o" }, "aa", function() select.select_textobject("@parameter.outer", "textobjects") end, { desc = "Select outer part of a parameter/argument" })
+    vim.keymap.set({ "x", "o" }, "ia", function() select.select_textobject("@parameter.inner", "textobjects") end, { desc = "Select inner part of a parameter/argument" })
+    vim.keymap.set({ "x", "o" }, "ai", function() select.select_textobject("@conditional.outer", "textobjects") end, { desc = "Select outer part of a conditional" })
+    vim.keymap.set({ "x", "o" }, "ii", function() select.select_textobject("@conditional.inner", "textobjects") end, { desc = "Select inner part of a conditional" })
+    vim.keymap.set({ "x", "o" }, "al", function() select.select_textobject("@loop.outer", "textobjects") end, { desc = "Select outer part of a loop" })
+    vim.keymap.set({ "x", "o" }, "il", function() select.select_textobject("@loop.inner", "textobjects") end, { desc = "Select inner part of a loop" })
+    vim.keymap.set({ "x", "o" }, "af", function() select.select_textobject("@call.outer", "textobjects") end, { desc = "Select outer part of a function call" })
+    vim.keymap.set({ "x", "o" }, "if", function() select.select_textobject("@call.inner", "textobjects") end, { desc = "Select inner part of a function call" })
+    vim.keymap.set({ "x", "o" }, "am", function() select.select_textobject("@function.outer", "textobjects") end, { desc = "Select outer part of a method/function definition" })
+    vim.keymap.set({ "x", "o" }, "im", function() select.select_textobject("@function.inner", "textobjects") end, { desc = "Select inner part of a method/function definition" })
+    vim.keymap.set({ "x", "o" }, "ac", function() select.select_textobject("@class.outer", "textobjects") end, { desc = "Select outer part of a class" })
+    vim.keymap.set({ "x", "o" }, "ic", function() select.select_textobject("@class.inner", "textobjects") end, { desc = "Select inner part of a class" })
+
+    -- Keymaps for movement
+    local move = require('nvim-treesitter-textobjects.move')
+    vim.keymap.set({ "n", "x", "o" }, "]m", function() move.goto_next_start("@function.outer", "textobjects") end, { desc = "Next function start" })
+    vim.keymap.set({ "n", "x", "o" }, "]]", function() move.goto_next_start("@class.outer", "textobjects") end, { desc = "Next class start" })
+    vim.keymap.set({ "n", "x", "o" }, "]o", function() move.goto_next_start("@loop.*", "textobjects") end, { desc = "Next loop start" })
+    vim.keymap.set({ "n", "x", "o" }, "]s", function() move.goto_next_start("@local.scope", "locals") end, { desc = "Next scope" })
+    vim.keymap.set({ "n", "x", "o" }, "]z", function() move.goto_next_start("@fold", "folds") end, { desc = "Next fold" })
+
+    vim.keymap.set({ "n", "x", "o" }, "]M", function() move.goto_next_end("@function.outer", "textobjects") end, { desc = "Next function end" })
+    vim.keymap.set({ "n", "x", "o" }, "][", function() move.goto_next_end("@class.outer", "textobjects") end, { desc = "Next class end" })
+
+    vim.keymap.set({ "n", "x", "o" }, "[m", function() move.goto_previous_start("@function.outer", "textobjects") end, { desc = "Previous function start" })
+    vim.keymap.set({ "n", "x", "o" }, "[[", function() move.goto_previous_start("@class.inner", "textobjects") end, { desc = "Previous class start" })
+
+    vim.keymap.set({ "n", "x", "o" }, "[M", function() move.goto_previous_end("@function.outer", "textobjects") end, { desc = "Previous function end" })
+    vim.keymap.set({ "n", "x", "o" }, "[]", function() move.goto_previous_end("@class.outer", "textobjects") end, { desc = "Previous class end" })
+
+    vim.keymap.set({ "n", "x", "o" }, "]i", function() move.goto_next("@conditional.outer", "textobjects") end, { desc = "Next conditional start/end" })
+    vim.keymap.set({ "n", "x", "o" }, "[i", function() move.goto_previous("@conditional.outer", "textobjects") end, { desc = "Previous conditional start/end" })
   end,
 }

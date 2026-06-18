@@ -41,13 +41,46 @@ vim.opt.splitbelow = true      -- Vertical splits open below
 
 -- 6. Baseline Folding (CHEAP FALLBACK)
 -- We set this to 'indent' as a baseline.
--- The 'folding.lua' module will upgrade this to 'expr' for TS files.
 vim.opt.fillchars:append({ fold = " " })
-vim.opt.viewoptions = { "folds", "cursor" }
+vim.opt.viewoptions = { "folds" }
 vim.opt.foldmethod = "indent"
 vim.opt.foldminlines = 1
 vim.opt.foldlevel  = 99
 
-vim.opt.viewoptions = { "folds", "cursor" }
+vim.opt.foldopen = "hor,mark,percent,quickfix,search,tag,undo,jump,block"
 
-vim.opt.foldopen = "hor,mark,percent,quickfix,search,tag,undo"
+-- 7. Session-isolated and self-cleaning view directory (PID-based)
+local base_viewdir = vim.fn.stdpath("state") .. "/view_pid_"
+local my_pid = vim.fn.getpid()
+local my_viewdir = base_viewdir .. my_pid
+
+-- Clean up any stale view directories from crashed/old sessions on startup
+local state_dir = vim.fn.stdpath("state")
+if vim.fn.isdirectory(state_dir) == 1 then
+  local items = vim.fn.readdir(state_dir)
+  for _, item in ipairs(items) do
+    if item:match("^view_pid_") then
+      local pid = tonumber(item:match("^view_pid_(%d+)$"))
+      if pid and pid ~= my_pid then
+        -- uv.kill(pid, 0) checks if process is alive; returns nil/error if dead
+        local ok, err = pcall(vim.uv.kill, pid, 0)
+        if not ok or err then
+          vim.fn.delete(state_dir .. "/" .. item, "rf")
+        end
+      end
+    end
+  end
+end
+
+-- Create and set our unique session view directory
+vim.fn.mkdir(my_viewdir, "p")
+vim.opt.viewdir = my_viewdir
+
+-- Clean up our directory when we exit
+vim.api.nvim_create_autocmd({ "VimLeave" }, {
+  callback = function()
+    if vim.fn.isdirectory(my_viewdir) == 1 then
+      vim.fn.delete(my_viewdir, "rf")
+    end
+  end,
+})

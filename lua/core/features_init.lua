@@ -70,10 +70,14 @@ registry.register_feature(ids.VCS, {
     -- Use vim.system to avoid blocking the UI thread
     vim.system({ "git", "-C", dir, "branch", "--show-current" }, { text = true }, function(obj)
       vim.schedule(function()
-        local branch = obj.stdout:gsub("\n", "")
-        if branch ~= "" then
-          require("core.taskbus").set(ids.VCS, " " .. branch)
+        if obj.code == 0 then
+          local branch = obj.stdout:gsub("[\r\n]", "")
+          if branch ~= "" then
+            require("core.taskbus").set(ids.VCS, " " .. branch)
+            return
+          end
         end
+        require("core.taskbus").set(ids.VCS, "")
       end)
     end)
     return " ..." -- Initial placeholder

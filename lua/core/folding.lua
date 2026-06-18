@@ -75,13 +75,30 @@ local function apply_folds(buf)
   local win = vim.fn.bufwinid(buf)
   if win == -1 then return end
 
-  vim.wo[win].foldmethod = "expr"
-  vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+  if vim.wo[win].foldmethod ~= "expr" then
+    vim.wo[win].foldmethod = "expr"
+    vim.wo[win].foldexpr = "v:lua.vim.treesitter.foldexpr()"
+    vim.wo[win].foldtext = "v:lua.custom_fold_text()"
+    vim.wo[win].foldenable = true
+    vim.wo[win].foldlevel = 0
+  end
 
-  vim.wo[win].foldtext = "v:lua.custom_fold_text()"
+  -- Force parser creation and synchronous parse
+  local ok, parser = pcall(vim.treesitter.get_parser, buf, ft)
+  if ok and parser then
+    pcall(vim.treesitter.query.get, ft, "folds") -- Ensure queries are loaded
+    pcall(parser.parse, parser)
+    vim.cmd("redraw") -- Force fold rendering
+  end
 
-  vim.wo[win].foldenable = true
-  vim.wo[win].foldlevel = 0
+  -- Load view and restore cursor
+  local cursor = vim.api.nvim_win_get_cursor(win)
+  vim.api.nvim_win_call(win, function()
+    vim.cmd("silent! normal! zx") -- Force fold re-evaluation
+    vim.cmd("silent! loadview")   -- Restore manual fold states
+    pcall(vim.api.nvim_win_set_cursor, win, cursor)
+    vim.cmd("silent! normal! zv") -- Open fold under cursor
+  end)
 end
 
 function M.setup()
@@ -94,8 +111,8 @@ function M.setup()
   })
 
   local fold_view_group = vim.api.nvim_create_augroup("FoldViewStateConsistency", { clear = true })
-  -- Triggered right before leaving a window or buffer split
-  vim.api.nvim_create_autocmd({ "BufWinLeave", "WinLeave" }, {
+  -- Triggered right before leaving a buffer
+  vim.api.nvim_create_autocmd({ "BufLeave" }, {
     group = fold_view_group,
     pattern = "*",
     callback = function(ev)
@@ -103,28 +120,10 @@ function M.setup()
       if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
         return
       end
-      -- Use silent! to prevent errors if the directory isn't writable or a buffer has no name
       vim.cmd("silent! mkview")
     end,
   })
-  -- Triggered when jumping back to a buffer
-  vim.api.nvim_create_autocmd({ "BufWinEnter" }, {
-    group = fold_view_group,
-    pattern = "*",
-    callback = function(ev)
-      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
-        return
-      end
 
-      -- We schedule loading the view to execute after the Registry's main event loop
-      -- finishes setting foldmethod="expr" and resetting foldlevel.
-      vim.schedule(function()
-        if vim.api.nvim_buf_is_valid(ev.buf) then
-          vim.cmd("silent! loadview")
-        end
-      end)
-    end,
-  })
 end
 
 return M

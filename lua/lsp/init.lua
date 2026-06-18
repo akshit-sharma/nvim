@@ -25,6 +25,28 @@ function M.setup()
     severity_sort = true,
   })
 
+  -- Wrap definition and declaration handlers to automatically run zv (unfold cursor line)
+  local methods = {
+    "textDocument/definition",
+    "textDocument/declaration",
+    "textDocument/implementation",
+    "textDocument/typeDefinition",
+  }
+  for _, method in ipairs(methods) do
+    local default_handler = vim.lsp.handlers[method]
+    vim.lsp.handlers[method] = function(err, result, ctx, config)
+      if default_handler then
+        default_handler(err, result, ctx, config)
+      else
+        vim.lsp.handlers[method](err, result, ctx, config)
+      end
+      -- Post-jump: ensure the fold containing the cursor is open
+      vim.schedule(function()
+        vim.cmd("silent! normal! zv")
+      end)
+    end
+  end
+
   -- 2. Performance-Aware Attach Logic
   vim.api.nvim_create_autocmd('LspAttach', {
     group = vim.api.nvim_create_augroup('LspArchitect', { clear = true }),
@@ -36,37 +58,57 @@ function M.setup()
       -------------------------------------------------------------------------
       -- PART 1: THE ARCHITECT'S SHORTCUTS (With Deprecation Warnings)
       -------------------------------------------------------------------------
-      local function map_deprecated(old, current, func, desc)
-        -- The "Classic" Key (Triggers Warning)
-        vim.keymap.set('n', old, function()
-          func()
-          vim.notify(
-            string.format("DEPRECATED: '%s' -> USE: '%s'", old, current),
-            vim.log.levels.WARN,
-            { title = "LSP Architect", render = "minimal" }
-          )
-        end, { buffer = bufnr, desc = desc .. " (Deprecated)" })
-
-        -- The "Standard" Key (Silent & Fast)
-        vim.keymap.set('n', current, func, { buffer = bufnr, desc = desc })
+      local function map_lsp(gr_key, old_key, func, desc)
+        -- Map the new standard key (gr*)
+        vim.keymap.set('n', gr_key, func, { buffer = bufnr, desc = desc })
+        -- Map the leader key variant (<leader>gr*)
+        vim.keymap.set('n', '<leader>' .. gr_key, func, { buffer = bufnr, desc = desc })
+        
+        -- Map the deprecated old key (if provided)
+        if old_key then
+          vim.keymap.set('n', old_key, function()
+            func()
+            vim.notify(
+              string.format("DEPRECATED: '%s' -> USE: '%s' or '<leader>%s'", old_key, gr_key, gr_key),
+              vim.log.levels.WARN,
+              { title = "LSP Architect", render = "minimal" }
+            )
+          end, { buffer = bufnr, desc = desc .. " (Deprecated)" })
+        end
       end
 
       -- 1. Navigation Chords
-      map_deprecated('gd',  'grd', vim.lsp.buf.definition,      "Go to Definition")
-      map_deprecated('gr',  'grr', vim.lsp.buf.references,      "References")
-      map_deprecated('gi',  'gri', vim.lsp.buf.implementation,  "Implementation")
-      map_deprecated('gt',  'grt', vim.lsp.buf.type_definition, "Type Definition")
+      map_lsp('grd', 'gd', vim.lsp.buf.definition,      "Go to Definition")
+      map_lsp('grr', 'gr', vim.lsp.buf.references,      "References")
+      map_lsp('gri', 'gi', vim.lsp.buf.implementation,  "Implementation")
+      map_lsp('grt', 'gt', vim.lsp.buf.type_definition, "Type Definition")
 
       -- 2. Action Chords
-      map_deprecated('<leader>rn', 'grn', vim.lsp.buf.rename,      "Rename")
-      map_deprecated('<leader>ca', 'gra', vim.lsp.buf.code_action, "Code Action")
+      map_lsp('grn', '<leader>rn', vim.lsp.buf.rename,      "Rename")
+      map_lsp('gra', '<leader>ca', vim.lsp.buf.code_action, "Code Action")
 
       -- 3. One-Shot Essentials (Non-deprecated)
-      vim.keymap.set('n', 'gD', vim.lsp.buf.declaration,     opts)
-      vim.keymap.set('n', 'K',  vim.lsp.buf.hover,           opts)
-      vim.keymap.set('n', 'gO', vim.lsp.buf.document_symbol, opts)
-      vim.keymap.set('n', '[d', function() vim.diagnostic.jump({ count = -1, float = true }) end, opts)
-      vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count =  1, float = true }) end,    opts)
+      vim.keymap.set('n', 'gD',    vim.lsp.buf.declaration,     opts)
+      vim.keymap.set('n', 'K',     vim.lsp.buf.hover,           opts)
+      vim.keymap.set('n', 'gO',    vim.lsp.buf.document_symbol, opts)
+      vim.keymap.set('n', '<C-]>', vim.lsp.buf.definition,      opts)
+      vim.keymap.set('n', '<leader>grs', function()
+        local ok, telescope = pcall(require, 'telescope.builtin')
+        if ok then
+          telescope.lsp_document_symbols()
+        else
+          vim.lsp.buf.document_symbol()
+        end
+      end, { buffer = bufnr, desc = "Document Symbols (Telescope)" })
+
+      vim.keymap.set('n', '[d', function()
+        vim.diagnostic.jump({ count = -1, float = true })
+        vim.cmd("silent! normal! zv")
+      end, opts)
+      vim.keymap.set('n', ']d', function()
+        vim.diagnostic.jump({ count =  1, float = true })
+        vim.cmd("silent! normal! zv")
+      end, opts)
 
       -- BLOCK: If Performance Guard is active, limit LSP intensity
       if vim.b[bufnr].perf_mode then

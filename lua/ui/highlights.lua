@@ -55,6 +55,14 @@ function M.setup()
 
   -- 5. Folding (Zero-Glitch Contrast)
   vim.api.nvim_set_hl(0, "Folded", { bg = p.bg_alt, fg = p.fg_alt, italic = true })
+
+  -- 6. Mode Highlights for Statusline
+  local mode_fg = is_dark and "#282828" or "#fbf1c7"
+  vim.api.nvim_set_hl(0, "ModeNormal",  { fg = mode_fg, bg = p.blue, bold = true })
+  vim.api.nvim_set_hl(0, "ModeInsert",  { fg = mode_fg, bg = p.green, bold = true })
+  vim.api.nvim_set_hl(0, "ModeVisual",  { fg = mode_fg, bg = is_dark and "#d3869b" or "#8f3f71", bold = true })
+  vim.api.nvim_set_hl(0, "ModeReplace", { fg = mode_fg, bg = p.red, bold = true })
+  vim.api.nvim_set_hl(0, "ModeCommand", { fg = mode_fg, bg = p.yellow, bold = true })
 end
 
 -- Ensure highlights persist across colorscheme changes
