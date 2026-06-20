@@ -70,6 +70,10 @@ return {
     -- 5. CURRENT WORD
     { "sw",              function() require("telescope.builtin").grep_string() end, desc = "Search Word (Fast)" },
     { "<leader>sw",      function() require("telescope.builtin").grep_string() end, desc = "Search Word (Leader)" },
+
+    -- 6. JUMPLIST
+    { "sj",              function() require("telescope.builtin").jumplist() end, desc = "Search Jumps (Fast)" },
+    { "<leader>sj",      function() require("telescope.builtin").jumplist() end, desc = "Search Jumps (Leader)" },
     { "sp", function()
       require("telescope.builtin").find_files({
         prompt_title = "Select Particular Workspace",

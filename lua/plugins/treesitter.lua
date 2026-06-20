@@ -9,6 +9,17 @@ return {
     -- Initialize the main treesitter plugin (main branch)
     require('nvim-treesitter').setup({})
 
+    -- Enable native Tree-sitter highlighting for installed parsers
+    vim.api.nvim_create_autocmd("FileType", {
+      group = vim.api.nvim_create_augroup("treesitter-enable", { clear = true }),
+      callback = function(args)
+        local lang = vim.treesitter.language.get_lang(args.match)
+        if lang and vim.treesitter.query.get(lang, "highlights") then
+          pcall(vim.treesitter.start, args.buf, lang)
+        end
+      end,
+    })
+
     -- Initialize textobjects
     require('nvim-treesitter-textobjects').setup({
       select = {

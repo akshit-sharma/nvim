@@ -1,3 +1,8 @@
+local function find_project_root(path)
+  if not path or path == "" then return nil end
+  return vim.fs.root(path, { "Makefile", ".git", ".clangd" })
+end
+
 return {
   cmd = {
     "clangd",
@@ -8,14 +13,26 @@ return {
   root_dir = function(bufnr, on_dir)
     local fname = vim.api.nvim_buf_get_name(bufnr)
     if fname == "" then return end
-    local cwd = vim.fn.getcwd()
+    
+    -- Dynamically find project root using markers
+    local project_root = find_project_root(fname)
+    
+    -- If we can't find a project root from the file, try the alternate buffer
+    if not project_root then
+      local alt_buf = vim.fn.bufnr('#')
+      local alt_name = alt_buf > 0 and vim.api.nvim_buf_get_name(alt_buf) or ""
+      project_root = find_project_root(alt_name)
+    end
+    
+    -- If still not found, fall back to cwd
+    project_root = project_root or vim.fn.getcwd()
 
     -- Check if it belongs to linux context
-    if fname:find(cwd .. "/linux/", 1, true) then return end
+    if fname:find(project_root .. "/linux/", 1, true) then return end
 
     -- Check if it belongs to embedded context (app, core, or Zephyr SDK /ncs/)
-    local is_embedded = fname:find(cwd .. "/app/", 1, true)
-                     or fname:find(cwd .. "/core/", 1, true)
+    local is_embedded = fname:find(project_root .. "/app/", 1, true)
+                     or fname:find(project_root .. "/core/", 1, true)
                      or fname:find("/ncs/", 1, true)
 
     -- If it's a system/external file, check the alternate buffer context
@@ -23,18 +40,18 @@ return {
       local alt_buf = vim.fn.bufnr('#')
       local alt_name = alt_buf > 0 and vim.api.nvim_buf_get_name(alt_buf) or ""
       if alt_name ~= "" then
-        if alt_name:find(cwd .. "/linux/", 1, true) then
+        if alt_name:find(project_root .. "/linux/", 1, true) then
           return -- Alternate buffer was linux, so this system file should be linux context
-        elseif alt_name:find(cwd .. "/app/", 1, true)
-            or alt_name:find(cwd .. "/core/", 1, true)
+        elseif alt_name:find(project_root .. "/app/", 1, true)
+            or alt_name:find(project_root .. "/core/", 1, true)
             or alt_name:find("/ncs/", 1, true) then
           is_embedded = true
         end
       end
     end
 
-    if is_embedded and vim.fn.filereadable(cwd .. "/build/app/debug/compile_commands.json") == 1 then
-      on_dir(cwd)
+    if is_embedded and vim.fn.filereadable(project_root .. "/build/app/debug/compile_commands.json") == 1 then
+      on_dir(project_root)
     end
   end,
 }

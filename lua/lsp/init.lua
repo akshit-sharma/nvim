@@ -25,20 +25,47 @@ function M.setup()
     severity_sort = true,
   })
 
+  local function deduplicate_locations(locations)
+    if not locations then return nil end
+    if not vim.tbl_islist(locations) then
+      return locations
+    end
+
+    local seen = {}
+    local unique = {}
+    for _, loc in ipairs(locations) do
+      local uri = loc.uri or loc.targetUri
+      local range = loc.range or loc.targetSelectionRange or loc.targetRange
+      if uri and range then
+        local key = string.format("%s:%d:%d", uri, range.start.line, range.start.character)
+        if not seen[key] then
+          seen[key] = true
+          table.insert(unique, loc)
+        end
+      else
+        table.insert(unique, loc)
+      end
+    end
+    return unique
+  end
+
   -- Wrap definition and declaration handlers to automatically run zv (unfold cursor line)
+  -- and deduplicate results when multiple active clients return identical locations
   local methods = {
     "textDocument/definition",
     "textDocument/declaration",
     "textDocument/implementation",
     "textDocument/typeDefinition",
+    "textDocument/references",
   }
   for _, method in ipairs(methods) do
     local default_handler = vim.lsp.handlers[method]
     vim.lsp.handlers[method] = function(err, result, ctx, config)
+      if result then
+        result = deduplicate_locations(result)
+      end
       if default_handler then
         default_handler(err, result, ctx, config)
-      else
-        vim.lsp.handlers[method](err, result, ctx, config)
       end
       -- Post-jump: ensure the fold containing the cursor is open
       vim.schedule(function()
@@ -58,6 +85,44 @@ function M.setup()
       -------------------------------------------------------------------------
       -- PART 1: THE ARCHITECT'S SHORTCUTS (With Deprecation Warnings)
       -------------------------------------------------------------------------
+      local function wrap_nav_func(func, is_references)
+        return function()
+          local opts_tbl = {
+            on_list = function(options)
+              if not options or not options.items or vim.tbl_isempty(options.items) then
+                vim.notify("No locations found", vim.log.levels.INFO)
+                return
+              end
+              local seen = {}
+              local unique_items = {}
+              for _, item in ipairs(options.items) do
+                local key = string.format("%s:%d:%d", item.filename, item.lnum, item.col)
+                if not seen[key] then
+                  seen[key] = true
+                  table.insert(unique_items, item)
+                end
+              end
+
+              if #unique_items == 1 then
+                local item = unique_items[1]
+                vim.cmd(string.format("keepjumps edit %s", vim.fn.fnameescape(item.filename)))
+                vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
+                vim.cmd("silent! normal! zv")
+              else
+                vim.fn.setqflist({}, ' ', { title = options.title, items = unique_items })
+                vim.cmd('copen')
+              end
+            end
+          }
+
+          if is_references then
+            func(nil, opts_tbl)
+          else
+            func(opts_tbl)
+          end
+        end
+      end
+
       local function map_lsp(gr_key, old_key, func, desc)
         -- Map the new standard key (gr*)
         vim.keymap.set('n', gr_key, func, { buffer = bufnr, desc = desc })
@@ -78,20 +143,20 @@ function M.setup()
       end
 
       -- 1. Navigation Chords
-      map_lsp('grd', 'gd', vim.lsp.buf.definition,      "Go to Definition")
-      map_lsp('grr', 'gr', vim.lsp.buf.references,      "References")
-      map_lsp('gri', 'gi', vim.lsp.buf.implementation,  "Implementation")
-      map_lsp('grt', 'gt', vim.lsp.buf.type_definition, "Type Definition")
+      map_lsp('grd', 'gd', wrap_nav_func(vim.lsp.buf.definition, false),      "Go to Definition")
+      map_lsp('grr', 'gr', wrap_nav_func(vim.lsp.buf.references, true),       "References")
+      map_lsp('gri', 'gi', wrap_nav_func(vim.lsp.buf.implementation, false),  "Implementation")
+      map_lsp('grt', 'gt', wrap_nav_func(vim.lsp.buf.type_definition, false), "Type Definition")
 
       -- 2. Action Chords
       map_lsp('grn', '<leader>rn', vim.lsp.buf.rename,      "Rename")
       map_lsp('gra', '<leader>ca', vim.lsp.buf.code_action, "Code Action")
 
       -- 3. One-Shot Essentials (Non-deprecated)
-      vim.keymap.set('n', 'gD',    vim.lsp.buf.declaration,     opts)
+      vim.keymap.set('n', 'gD',    wrap_nav_func(vim.lsp.buf.declaration, false),     opts)
       vim.keymap.set('n', 'K',     vim.lsp.buf.hover,           opts)
       vim.keymap.set('n', 'gO',    vim.lsp.buf.document_symbol, opts)
-      vim.keymap.set('n', '<C-]>', vim.lsp.buf.definition,      opts)
+      vim.keymap.set('n', '<C-]>', wrap_nav_func(vim.lsp.buf.definition, false),      opts)
       vim.keymap.set('n', '<leader>grs', function()
         local ok, telescope = pcall(require, 'telescope.builtin')
         if ok then
@@ -134,6 +199,16 @@ function M.setup()
       end
     end,
   })
+
+  -- Retroactively trigger LSP startup for buffers loaded before lsp was initialized
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(bufnr) then
+      local ft = vim.bo[bufnr].filetype
+      if ft ~= "" then
+        vim.api.nvim_exec_autocmds("FileType", { buffer = bufnr })
+      end
+    end
+  end
 end
 
 return M
