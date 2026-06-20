@@ -94,10 +94,10 @@ local function apply_folds(buf)
   -- Load view and restore cursor
   local cursor = vim.api.nvim_win_get_cursor(win)
   vim.api.nvim_win_call(win, function()
-    vim.cmd("silent! normal! zx") -- Force fold re-evaluation
-    vim.cmd("silent! loadview")   -- Restore manual fold states
+    vim.cmd("keepjumps silent! normal! zx") -- Force fold re-evaluation
+    vim.cmd("keepjumps silent! loadview")   -- Restore manual fold states
     pcall(vim.api.nvim_win_set_cursor, win, cursor)
-    vim.cmd("silent! normal! zv") -- Open fold under cursor
+    vim.cmd("keepjumps silent! normal! zv") -- Open fold under cursor
   end)
 end
 

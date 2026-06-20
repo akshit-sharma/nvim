@@ -105,7 +105,16 @@ function M.setup()
 
               if #unique_items == 1 then
                 local item = unique_items[1]
-                vim.cmd(string.format("keepjumps edit %s", vim.fn.fnameescape(item.filename)))
+                -- Record the current location in the jumplist
+                vim.cmd("normal! m'")
+
+                -- Switch buffer only if it is a different file
+                local current_buf_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p")
+                local target_buf_name = vim.fn.fnamemodify(item.filename, ":p")
+                if current_buf_name ~= target_buf_name then
+                  vim.cmd(string.format("edit %s", vim.fn.fnameescape(item.filename)))
+                end
+
                 vim.api.nvim_win_set_cursor(0, { item.lnum, item.col - 1 })
                 vim.cmd("silent! normal! zv")
               else

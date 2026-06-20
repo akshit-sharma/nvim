@@ -6,7 +6,10 @@ function M.setup()
   for i = 1, 8 do
     vim.keymap.set("n", string.format("<A-%d>", i), function()
       local bufs = vim.t.tab_buffers or {}
-      if bufs[i] then vim.api.nvim_set_current_buf(bufs[i]) end
+      if bufs[i] then
+        vim.cmd("normal! m'")
+        vim.api.nvim_set_current_buf(bufs[i])
+      end
     end, { desc = "Jump to buffer index " .. i })
   end
 
@@ -25,6 +28,7 @@ function M.setup()
     for i, bufnr in ipairs(bufs) do
       if bufnr == current then
         local next_idx = (i + direction - 1) % #bufs + 1
+        vim.cmd("normal! m'")
         vim.api.nvim_set_current_buf(bufs[next_idx])
         return
       end
