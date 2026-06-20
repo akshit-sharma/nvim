@@ -64,6 +64,7 @@ require('lazy').setup({
 
 -- Standard Options (Line numbers, etc.)
 require('core.options')
+require('core.sessions').setup()
 require('core.keymaps').setup()
 
 -- Initialize High-Performance Features
