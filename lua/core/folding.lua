@@ -124,6 +124,75 @@ function M.setup()
     end,
   })
 
+  -- Prevent folds from automatically closing while typing in insert mode
+  local fold_insert_group = vim.api.nvim_create_augroup("FoldInsertHandling", { clear = true })
+
+  vim.api.nvim_create_autocmd("InsertEnter", {
+    group = fold_insert_group,
+    pattern = "*",
+    callback = function(ev)
+      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
+        return
+      end
+      if vim.wo.foldmethod == "expr" then
+        vim.w.last_fdm = "expr"
+        if vim.fn.empty(vim.fn.expand("%")) == 0 then
+          vim.cmd("silent! mkview")
+        end
+        vim.wo.foldmethod = "manual"
+      end
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("InsertLeave", {
+    group = fold_insert_group,
+    pattern = "*",
+    callback = function(ev)
+      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
+        return
+      end
+      if vim.w.last_fdm == "expr" then
+        vim.wo.foldmethod = "expr"
+        local cursor = vim.api.nvim_win_get_cursor(0)
+        if vim.fn.empty(vim.fn.expand("%")) == 0 then
+          vim.cmd("silent! loadview")
+        end
+        pcall(vim.api.nvim_win_set_cursor, 0, cursor)
+        vim.cmd("keepjumps silent! normal! zv")
+        vim.w.last_fdm = nil
+      end
+    end,
+  })
+
+  -- Prevent folds from collapsing/recalculating when saving the file (:w)
+  local fold_save_group = vim.api.nvim_create_augroup("FoldSaveHandling", { clear = true })
+
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    group = fold_save_group,
+    pattern = "*",
+    callback = function(ev)
+      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
+        return
+      end
+      if vim.fn.empty(vim.fn.expand("%")) == 0 then
+        vim.cmd("silent! mkview")
+      end
+    end,
+  })
+
+  vim.api.nvim_create_autocmd("BufWritePost", {
+    group = fold_save_group,
+    pattern = "*",
+    callback = function(ev)
+      if vim.bo[ev.buf].buftype ~= "" or vim.b[ev.buf].perf_mode then
+        return
+      end
+      if vim.fn.empty(vim.fn.expand("%")) == 0 then
+        vim.cmd("silent! loadview")
+      end
+      vim.cmd("keepjumps silent! normal! zv")
+    end,
+  })
 end
 
 return M
